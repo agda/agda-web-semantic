@@ -2,7 +2,6 @@ open import Data.Bool using ( Bool ; true ; false ; _∧_ )
 open import Data.Product using ( _×_ )
 open import Relation.Binary.PropositionalEquality using ( _≡_ )
 open import Relation.Unary using ( _∈_ )
-open import Web.Semantic.DL.ABox using ( ABox ; ε ; _,_ ; _∼_ ; _∈₁_ ; _∈₂_ )
 open import Web.Semantic.DL.Signature using ( Signature )
 open import Web.Semantic.DL.TBox using
   ( Concept ; Role ; TBox
@@ -10,7 +9,7 @@ open import Web.Semantic.DL.TBox using
   ; ε ; _,_ ;_⊑₁_ ; _⊑₂_ )
 open import Web.Semantic.Util using ( Subset ; □ ; □-proj₁ ; □-proj₂ )
 
-module Web.Semantic.DL.Minimizable {Σ : Signature} where
+module Web.Semantic.DL.TBox.Minimizable {Σ : Signature} where
 
 data LHS : Subset (Concept Σ) where
   ⟨_⟩ : ∀ c → ⟨ c ⟩ ∈ LHS
@@ -33,13 +32,6 @@ data Minimizable : Subset (TBox Σ) where
   _,_ : ∀ {T U} → (T ∈ Minimizable) → (U ∈ Minimizable) → ((T , U) ∈ Minimizable)
   _⊑₁_ : ∀ {C D} → (C ∈ LHS) → (D ∈ RHS) → ((C ⊑₁ D) ∈ Minimizable)
   _⊑₂_ : ∀ Q R → ((Q ⊑₂ R) ∈ Minimizable)
-
-data Minimizable′ : Subset (ABox Σ) where
-  ε : Minimizable′ ε
-  _,_ : ∀ {A B} → (A ∈ Minimizable′) → (B ∈ Minimizable′) → ((A , B) ∈ Minimizable′)
-  _∼_ : ∀ i j → ((i ∼ j) ∈ Minimizable′)
-  _∈₁_ : ∀ i {C} → (C ∈ RHS) → ((i ∈₁ C) ∈ Minimizable′)
-  _∈₂_ : ∀ ij R → ((ij ∈₂ R) ∈ Minimizable′)
 
 lhs? : Concept Σ → Bool
 lhs? ⟨ c ⟩      = true
@@ -96,17 +88,3 @@ minimizable ε               = ε
 minimizable (T , U)  {TU✓}  = (minimizable T {□-proj₁ TU✓} , minimizable U {□-proj₂ {minimizable? T} TU✓})
 minimizable (C ⊑₁ D) {C⊑D✓} = lhs C {□-proj₁ C⊑D✓} ⊑₁ rhs D {□-proj₂ {lhs? C} C⊑D✓}
 minimizable (Q ⊑₂ R)        = Q ⊑₂ R
-
-minimizable′? : ABox Σ → Bool
-minimizable′? ε         = true
-minimizable′? (A , B)   = minimizable′? A ∧ minimizable′? B
-minimizable′? (i ∼ j)   = true
-minimizable′? (i ∈₁ C)  = rhs? C
-minimizable′? (ij ∈₂ R) = true
-
-minimizable′ : ∀ A {A✓ : □(minimizable′? A)} → Minimizable′ A
-minimizable′ ε               = ε
-minimizable′ (A , B)   {AB✓} = (minimizable′ A {□-proj₁ AB✓} , minimizable′ B {□-proj₂ {minimizable′? A} AB✓})
-minimizable′ (i ∼ j)         = i ∼ j
-minimizable′ (i ∈₁ C)  {C✓}  = i ∈₁ (rhs C {C✓})
-minimizable′ (ij ∈₂ R)       = ij ∈₂ R

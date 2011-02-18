@@ -2,17 +2,17 @@ open import Data.Product using ( _×_ ; _,_ )
 open import Level using ( zero )
 open import Relation.Binary using ( Setoid )
 open import Relation.Unary using ( _∈_ )
-open import Web.Semantic.DL.Signature using ( Signature ; IN ; CN ; RN )
+open import Web.Semantic.DL.Signature using ( Signature ; CN ; RN )
 open import Web.Semantic.Util using ( Subset )
 
 module Web.Semantic.DL.Model.Interp where
 
-record Interp (Σ : Signature) : Set₁ where
+record Interp (Σ : Signature) (X : Set) : Set₁ where
   field 
     S : Setoid zero zero
   open Relation.Binary.Setoid S
   field
-    ind : IN Σ → Carrier
+    ind : X → Carrier
     con : CN Σ → Subset Carrier
     rol : RN Σ → Subset (Carrier × Carrier)
     con-≈ : ∀ {x y} c → (x ∈ con c) → (x ≈ y) → (y ∈ con c)

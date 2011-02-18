@@ -1,14 +1,15 @@
 open import Relation.Unary using ( _∈_ )
 open import Web.Semantic.DL.ABox using ( ABox )
-open import Web.Semantic.DL.Minimizable using ( Minimizable ; Minimizable′ )
+open import Web.Semantic.DL.ABox.Minimizable using ( Minimizable′ )
 open import Web.Semantic.DL.Model using ( _⊨_ ; _⊨_▷_ )
 open import Web.Semantic.DL.Model.Interp using ( Interp )
 open import Web.Semantic.DL.Model.Minimal using ( minimal ; minimal-model ; minimal-minimal )
 open import Web.Semantic.DL.Model.Order using ( _≤_ )
 open import Web.Semantic.DL.Signature using ( Signature )
 open import Web.Semantic.DL.TBox using ( TBox )
+open import Web.Semantic.DL.TBox.Minimizable using ( Minimizable )
 
-module Web.Semantic.DL.Integrity {Σ : Signature} where
+module Web.Semantic.DL.Integrity {Σ : Signature} {X : Set} where
 
 -- A variant of the notion of OWL integrity in:
 
@@ -20,9 +21,9 @@ module Web.Semantic.DL.Integrity {Σ : Signature} where
 -- We strengthen this requirement to say that there is a minimal model of T ▷ A,
 -- and that S is valid in it.
 
-record _▷_⊨_ (T : TBox Σ) (A : ABox Σ) (S : TBox Σ) : Set₁ where
+record _▷_⊨_ (T : TBox Σ) (A : ABox Σ X) (S : TBox Σ) : Set₁ where
   field
-    I : Interp Σ
+    I : Interp Σ X
     I⊨T▷A : I ⊨ T ▷ A
     μJ⊨T▷A : ∀ J → (J ⊨ T ▷ A) → (I ≤ J)
     I⊨S : I ⊨ S

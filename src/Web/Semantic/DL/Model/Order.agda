@@ -3,9 +3,9 @@ open import Relation.Unary using ( _∈_ )
 open import Web.Semantic.DL.Model.Interp using ( Interp ; Δ ;  _⊨_≈_ ; ind ; con ; rol )
 open import Web.Semantic.DL.Signature using ( Signature )
 
-module Web.Semantic.DL.Model.Order { Σ : Signature } where
+module Web.Semantic.DL.Model.Order {Σ : Signature} {X : Set} where
 
-record _≤_ (I J : Interp Σ) : Set where
+record _≤_ (I J : Interp Σ X) : Set where
   field
     f : Δ I → Δ J
     ≤-resp-≈ : ∀ {x y} → (I ⊨ x ≈ y) → (J ⊨ f x ≈ f y)
