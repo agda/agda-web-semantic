@@ -27,11 +27,11 @@ data RHS : Subset (Concept Σ) where
   ∀[_]_ : ∀ R {C} → (C ∈ RHS) → ((∀[ R ] C) ∈ RHS)
   ≤1 : ∀ R → ((≤1 R) ∈ RHS)
 
-data Minimizable : Subset (TBox Σ) where
-  ε : Minimizable ε
-  _,_ : ∀ {T U} → (T ∈ Minimizable) → (U ∈ Minimizable) → ((T , U) ∈ Minimizable)
-  _⊑₁_ : ∀ {C D} → (C ∈ LHS) → (D ∈ RHS) → ((C ⊑₁ D) ∈ Minimizable)
-  _⊑₂_ : ∀ Q R → ((Q ⊑₂ R) ∈ Minimizable)
+data μTBox : Subset (TBox Σ) where
+  ε : μTBox ε
+  _,_ : ∀ {T U} → (T ∈ μTBox) → (U ∈ μTBox) → ((T , U) ∈ μTBox)
+  _⊑₁_ : ∀ {C D} → (C ∈ LHS) → (D ∈ RHS) → ((C ⊑₁ D) ∈ μTBox)
+  _⊑₂_ : ∀ Q R → ((Q ⊑₂ R) ∈ μTBox)
 
 lhs? : Concept Σ → Bool
 lhs? ⟨ c ⟩      = true
@@ -77,14 +77,14 @@ rhs ⊥          {}
 rhs (C ⊔ D)    {}
 rhs (∃⟨ R ⟩ C) {}
 
-minimizable? : TBox Σ → Bool
-minimizable? ε        = true
-minimizable? (T , U)  = minimizable? T ∧ minimizable? U
-minimizable? (C ⊑₁ D) = lhs? C ∧ rhs? D
-minimizable? (Q ⊑₂ R) = true
+μTBox? : TBox Σ → Bool
+μTBox? ε        = true
+μTBox? (T , U)  = μTBox? T ∧ μTBox? U
+μTBox? (C ⊑₁ D) = lhs? C ∧ rhs? D
+μTBox? (Q ⊑₂ R) = true
 
-minimizable : ∀ T {T✓ : □(minimizable? T)} → Minimizable T
-minimizable ε               = ε
-minimizable (T , U)  {TU✓}  = (minimizable T {□-proj₁ TU✓} , minimizable U {□-proj₂ {minimizable? T} TU✓})
-minimizable (C ⊑₁ D) {C⊑D✓} = lhs C {□-proj₁ C⊑D✓} ⊑₁ rhs D {□-proj₂ {lhs? C} C⊑D✓}
-minimizable (Q ⊑₂ R)        = Q ⊑₂ R
+μtBox : ∀ T {T✓ : □(μTBox? T)} → μTBox T
+μtBox ε               = ε
+μtBox (T , U)  {TU✓}  = (μtBox T {□-proj₁ TU✓} , μtBox U {□-proj₂ {μTBox? T} TU✓})
+μtBox (C ⊑₁ D) {C⊑D✓} = lhs C {□-proj₁ C⊑D✓} ⊑₁ rhs D {□-proj₂ {lhs? C} C⊑D✓}
+μtBox (Q ⊑₂ R)        = Q ⊑₂ R

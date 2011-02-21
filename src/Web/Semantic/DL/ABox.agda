@@ -1,4 +1,4 @@
-open import Data.Product using ( _×_ )
+open import Data.Product using ( ∃ ; _×_ )
 open import Relation.Unary using ( ∅ ; _∪_ )
 open import Web.Semantic.DL.Signature using ( Signature )
 open import Web.Semantic.DL.TBox using ( Concept ; Role )

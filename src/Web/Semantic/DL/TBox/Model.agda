@@ -1,23 +1,21 @@
 open import Data.Product using ( ∃ ; _×_ ; _,_ )
 open import Data.Sum using ( inj₁ ; inj₂ )
-open import Data.Unit using ( tt ) renaming ( ⊤ to True )
-open import Level using ( zero )
-open import Relation.Binary using ( Setoid )
 open import Relation.Binary.PropositionalEquality using ( refl )
 open import Relation.Nullary using ( ¬_ )
 open import Relation.Unary using ( _∈_ ; _⊆_ ; ∅ ; U ; _∪_ ; _∩_ )
-open import Web.Semantic.DL.ABox using ( ABox ; Assertions ; ε ; _,_ ; _∼_ ; _∈₁_ ; _∈₂_ )
-open import Web.Semantic.DL.Model.Interp using ( Interp ; Δ ; _⊨_≈_ ; ≈-refl ; ≈-sym ; ind ; con ; rol ; con-≈ ; rol-≈ )
+open import Web.Semantic.DL.Interp using
+  ( Interp ; Δ ; _⊨_≈_ ; ≈-refl ; ≈-sym
+  ; con ; rol ; con-≈ ; rol-≈ )
 open import Web.Semantic.DL.Signature using ( Signature ; CN ; RN )
 open import Web.Semantic.DL.TBox using
   ( Concept ; Role ; TBox ; Axioms
   ; ⟨_⟩ ; ⟨_⟩⁻¹ ; ⊤ ; ⊥ ; _⊓_ ; _⊔_ ; _⇒_ ; ∀[_]_ ; ∃⟨_⟩_ ; ≤1
   ; ε ; _,_ ;_⊑₁_ ; _⊑₂_ )
-open import Web.Semantic.Util using ( Subset ; _⁻¹ ; _⊃_ )
+open import Web.Semantic.Util using ( True ; Subset ; _⁻¹ ; _⊃_ ; tt )
 
-module Web.Semantic.DL.Model {Σ : Signature} {X : Set} where
+module Web.Semantic.DL.TBox.Model {Σ : Signature} {X : Set} where
 
-infixr 2 _⊨_ _⊨′_ _⊨_▷_
+infixr 2 _⊨t_
 
 _⟦_⟧₂ : ∀ I → Role Σ → Subset (Δ I × Δ I)
 I ⟦ ⟨ r ⟩   ⟧₂ = rol I r
@@ -33,9 +31,6 @@ I ⟦ C ⇒ D    ⟧₁ = I ⟦ C ⟧₁ ⊃ I ⟦ D ⟧₁
 I ⟦ ∀[ R ] C ⟧₁ = λ x → ∀   y → ((x , y) ∈ I ⟦ R ⟧₂) → (y ∈ I ⟦ C ⟧₁)
 I ⟦ ∃⟨ R ⟩ C ⟧₁ = λ x → ∃ λ y → ((x , y) ∈ I ⟦ R ⟧₂) × (y ∈ I ⟦ C ⟧₁)
 I ⟦ ≤1 R     ⟧₁ = λ x → ∀ y z → ((x , y) ∈ I ⟦ R ⟧₂) → ((x , z) ∈ I ⟦ R ⟧₂) → (I ⊨ y ≈ z)
-
-_⟦_⟧₀ : ∀ I → X → Δ I
-I ⟦ i ⟧₀ = ind I i
 
 ⟦⟧₂-resp-≈ : ∀ I R {w x y z} → 
   (I ⊨ w ≈ x) → ((x , y) ∈ I ⟦ R ⟧₂) → (I ⊨ y ≈ z) → ((w , z) ∈ I ⟦ R ⟧₂) 
@@ -54,33 +49,15 @@ I ⟦ i ⟧₀ = ind I i
 ⟦⟧₁-resp-≈ I (≤1 R)     x∈∇⟦R⟧≈              x≈y = λ w z yw∈⟦R⟧ yz∈⟦R⟧ → x∈∇⟦R⟧≈ w z (⟦⟧₂-resp-≈ I R x≈y yw∈⟦R⟧ (≈-refl I)) (⟦⟧₂-resp-≈ I R x≈y yz∈⟦R⟧ (≈-refl I))
 ⟦⟧₁-resp-≈ I ⊥          ()                  x≈y
 
-_⊨_ : Interp Σ X → TBox Σ → Set
-I ⊨ ε        = True
-I ⊨ (T , U)  = (I ⊨ T) × (I ⊨ U)
-I ⊨ (C ⊑₁ D) = I ⟦ C ⟧₁ ⊆ I ⟦ D ⟧₁
-I ⊨ (Q ⊑₂ R) = I ⟦ Q ⟧₂ ⊆ I ⟦ R ⟧₂
+_⊨t_ : Interp Σ X → TBox Σ → Set
+I ⊨t ε        = True
+I ⊨t (T , U)  = (I ⊨t T) × (I ⊨t U)
+I ⊨t (C ⊑₁ D) = I ⟦ C ⟧₁ ⊆ I ⟦ D ⟧₁
+I ⊨t (Q ⊑₂ R) = I ⟦ Q ⟧₂ ⊆ I ⟦ R ⟧₂
 
-Axioms✓ : ∀ I T {t} → (t ∈ Axioms T) → (I ⊨ T) → (I ⊨ t)
+Axioms✓ : ∀ I T {t} → (t ∈ Axioms T) → (I ⊨t T) → (I ⊨t t)
 Axioms✓ I ε        ()         I⊨T
 Axioms✓ I (T , U)  (inj₁ t∈T) (I⊨T , I⊨U) = Axioms✓ I T t∈T I⊨T
 Axioms✓ I (T , U)  (inj₂ t∈U) (I⊨T , I⊨U) = Axioms✓ I U t∈U I⊨U
 Axioms✓ I (C ⊑₁ D) refl       I⊨T         = I⊨T
 Axioms✓ I (Q ⊑₂ R) refl       I⊨T         = I⊨T
-
-_⊨′_ : Interp Σ X → ABox Σ X → Set
-I ⊨′ ε            = True
-I ⊨′ (A , B)      = (I ⊨′ A) × (I ⊨′ B)
-I ⊨′ x ∼ y        = I ⊨ I ⟦ x ⟧₀ ≈ I ⟦ y ⟧₀
-I ⊨′ x ∈₁ C       = I ⟦ x ⟧₀ ∈ I ⟦ C ⟧₁
-I ⊨′ (x , y) ∈₂ R = (I ⟦ x ⟧₀ , I ⟦ y ⟧₀) ∈ I ⟦ R ⟧₂
-
-Assertions✓ : ∀ I A {a} → (a ∈ Assertions A) → (I ⊨′ A) → (I ⊨′ a)
-Assertions✓ I ε         ()         I⊨A
-Assertions✓ I (A , B)   (inj₁ a∈A) (I⊨A , I⊨B) = Assertions✓ I A a∈A I⊨A
-Assertions✓ I (A , B)   (inj₂ a∈B) (I⊨A , I⊨B) = Assertions✓ I B a∈B I⊨B
-Assertions✓ I (i ∼ j)   refl       I⊨A         = I⊨A
-Assertions✓ I (i ∈₁ C)  refl       I⊨A         = I⊨A
-Assertions✓ I (ij ∈₂ R) refl       I⊨A         = I⊨A
-
-_⊨_▷_ : Interp Σ X → TBox Σ → ABox Σ X → Set
-I ⊨ T ▷ A = (I ⊨ T) × (I ⊨′ A)
