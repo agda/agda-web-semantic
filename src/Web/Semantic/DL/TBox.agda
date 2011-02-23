@@ -17,14 +17,27 @@ data Role (Σ : Signature) : Set where
 
 data Concept (Σ : Signature) : Set where
   ⟨_⟩ : (c : CN Σ) → Concept Σ
+  ¬⟨_⟩ : (c : CN Σ) → Concept Σ
   ⊤ : Concept Σ
   ⊥ : Concept Σ
   _⊓_ : (C D : Concept Σ) → Concept Σ
   _⊔_ : (C D : Concept Σ) → Concept Σ
-  ¬ : (C : Concept Σ) → Concept Σ
   ∀[_]_ : (R : Role Σ) (C : Concept Σ) → Concept Σ
   ∃⟨_⟩_ : (R : Role Σ) (C : Concept Σ) → Concept Σ
   ≤1 : (R : Role Σ) → Concept Σ
+  >1 : (R : Role Σ) → Concept Σ
+
+¬ : ∀ {Σ} (C : Concept Σ) → Concept Σ
+¬ ⟨ c ⟩      = ¬⟨ c ⟩
+¬ ¬⟨ c ⟩     = ⟨ c ⟩
+¬ ⊤          = ⊤
+¬ ⊥          = ⊥
+¬ (C ⊓ D)    = ¬ C ⊔ ¬ D
+¬ (C ⊔ D)    = ¬ C ⊓ ¬ D
+¬ (∀[ R ] C) = ∃⟨ R ⟩ ¬ C
+¬ (∃⟨ R ⟩ C) = ∀[ R ] ¬ C
+¬ (≤1 R)     = >1 R
+¬ (>1 R)     = ≤1 R
 
 data TBox (Σ : Signature) : Set where
   ε : TBox Σ 

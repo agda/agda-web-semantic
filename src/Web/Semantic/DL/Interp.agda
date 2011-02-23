@@ -1,5 +1,6 @@
 open import Data.Product using ( _×_ ; _,_ )
 open import Relation.Binary using ()
+open import Relation.Nullary using ( ¬_ )
 open import Relation.Unary using ( _∈_ )
 open import Web.Semantic.DL.Signature using ( Signature ; CN ; RN )
 open import Web.Semantic.Util using ( Setoid ; Subset ; _∘_ )
@@ -22,6 +23,9 @@ open Interp public using
   ( setoid ; ind ; con ; rol ; con-≈ ; rol-≈ ) renaming 
   ( Carrier to Δ ; _≈_ to _⊨_≈_ 
   ; refl to ≈-refl ; sym to ≈-sym ; trans to ≈-trans )
+
+_⊨_≉_ : ∀ {Σ X} → (I : Interp Σ X) → Δ I → Δ I → Set
+I ⊨ x ≉ y = ¬(I ⊨ x ≈ y)
 
 ⟨Interp⟩ : ∀ {Σ X Y} → (Y → X) → (Interp Σ X → Interp Σ Y)
 ⟨Interp⟩ f I = record

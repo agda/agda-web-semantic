@@ -23,7 +23,7 @@ open import Web.Semantic.DL.Sequent using
 open import Web.Semantic.DL.Signature using ( Signature )
 open import Web.Semantic.DL.TBox using
   ( Concept ; Role ; TBox ; Axioms
-  ; ⟨_⟩ ; ⟨_⟩⁻¹ ; ⊤ ; ⊥ ; _⊓_ ; _⊔_ ; ¬ ; ∀[_]_ ; ∃⟨_⟩_ ; ≤1
+  ; ⟨_⟩ ; ¬⟨_⟩ ; ⟨_⟩⁻¹ ; ⊤ ; ⊥ ; _⊓_ ; _⊔_ ; ∀[_]_ ; ∃⟨_⟩_ ; ≤1 ; >1
   ; ε ; _,_ ;_⊑₁_ ; _⊑₂_ )
 open import Web.Semantic.DL.TBox.Minimizable using 
   ( LHS ; RHS ; μTBox
