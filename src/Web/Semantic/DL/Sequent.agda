@@ -3,11 +3,11 @@ open import Relation.Nullary using ( ¬_ )
 open import Relation.Unary using ( _∈_ ; ∅ ; _∪_ )
 open import Web.Semantic.DL.ABox using 
   ( ABox ; Assertions ; ε ; _,_ ; _∼_ ; _∈₁_ ; _∈₂_ )
-open import Web.Semantic.DL.KB using ( KB ; Ind ; tbox ; abox )
+open import Web.Semantic.DL.KB using ( KB ; tbox ; abox )
 open import Web.Semantic.DL.Signature using ( Signature )
 open import Web.Semantic.DL.TBox using
   ( Concept ; Role ; TBox ; Axioms
-  ; ⟨_⟩ ; ⟨_⟩⁻¹ ; ⊤ ; ⊥ ; _⊓_ ; _⊔_ ; _⇒_ ; ∀[_]_ ; ∃⟨_⟩_ ; ≤1
+  ; ⟨_⟩ ; ⟨_⟩⁻¹ ; ⊤ ; ⊥ ; _⊓_ ; _⊔_ ; ¬ ; ∀[_]_ ; ∃⟨_⟩_ ; ≤1
   ; ε ; _,_ ;_⊑₁_ ; _⊑₂_ )
 open import Web.Semantic.Util using ( Subset ; ⁅_⁆ )
 
@@ -15,7 +15,7 @@ module Web.Semantic.DL.Sequent {Σ : Signature} {X : Set} where
 
 infixr 2 _⊢_
 
-data _⊢_ (K : KB Σ X) : ABox Σ (Ind K) → Set where
+data _⊢_ (K : KB Σ X) : ABox Σ X → Set where
   assert : ∀ {B} → (B ∈ Assertions (abox K)) → (K ⊢ B)
   ∼-refl : ∀ {x} → (K ⊢ x ∼ x)
   ∼-sym : ∀ {x y} → (K ⊢ x ∼ y) → (K ⊢ y ∼ x)
@@ -29,7 +29,6 @@ data _⊢_ (K : KB Σ X) : ABox Σ (Ind K) → Set where
   ∈₁-⊓-E₂ : ∀ {x C D} → (K ⊢ x ∈₁ (C ⊓ D)) → (K ⊢ x ∈₁ D)
   ∈₁-⊔-I₁ : ∀ {x C D} → (K ⊢ x ∈₁ C) → (K ⊢ x ∈₁ (C ⊔ D))
   ∈₁-⊔-I₂ : ∀ {x C D} → (K ⊢ x ∈₁ D) → (K ⊢ x ∈₁ (C ⊔ D))
-  ∈₁-⇒-E : ∀ {x C D} → (K ⊢ x ∈₁ (C ⇒ D)) → (K ⊢ x ∈₁ C) → (K ⊢ x ∈₁ D)
   ∈₁-∀-E : ∀ {x y R C} → (K ⊢ x ∈₁ (∀[ R ] C)) → (K ⊢ (x , y) ∈₂ R) → (K ⊢ y ∈₁ C)
   ∈₁-∃-I : ∀ {x y R C} → (K ⊢ (x , y) ∈₂ R) → (K ⊢ y ∈₁ C)  → (K ⊢ x ∈₁ (∃⟨ R ⟩ C))
   ∈₂-resp-∼ : ∀ {w x y z R} → (K ⊢ w ∼ x) → (K ⊢ (x , y) ∈₂ R) → (K ⊢ y ∼ z) → (K ⊢ (w , z) ∈₂ R)

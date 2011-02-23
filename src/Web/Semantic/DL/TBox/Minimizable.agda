@@ -5,7 +5,7 @@ open import Relation.Unary using ( _∈_ )
 open import Web.Semantic.DL.Signature using ( Signature )
 open import Web.Semantic.DL.TBox using
   ( Concept ; Role ; TBox
-  ; ⟨_⟩ ; ⟨_⟩⁻¹ ; ⊤ ; ⊥ ; _⊓_ ; _⊔_ ; _⇒_ ; ∀[_]_ ; ∃⟨_⟩_ ; ≤1
+  ; ⟨_⟩ ; ⟨_⟩⁻¹ ; ⊤ ; ⊥ ; _⊓_ ; _⊔_ ; ¬ ; ∀[_]_ ; ∃⟨_⟩_ ; ≤1
   ; ε ; _,_ ;_⊑₁_ ; _⊑₂_ )
 open import Web.Semantic.Util using ( Subset ; □ ; □-proj₁ ; □-proj₂ )
 
@@ -23,7 +23,6 @@ data RHS : Subset (Concept Σ) where
   ⟨_⟩ : ∀ c → ⟨ c ⟩ ∈ RHS
   ⊤ : ⊤ ∈ RHS
   _⊓_ : ∀ {C D} → (C ∈ RHS) → (D ∈ RHS) → ((C ⊓ D) ∈ RHS)
-  _⇒_ : ∀ {C D} → (C ∈ LHS) → (D ∈ RHS) → ((C ⇒ D) ∈ RHS)
   ∀[_]_ : ∀ R {C} → (C ∈ RHS) → ((∀[ R ] C) ∈ RHS)
   ≤1 : ∀ R → ((≤1 R) ∈ RHS)
 
@@ -39,7 +38,7 @@ lhs? ⊤          = true
 lhs? ⊥          = true
 lhs? (C ⊓ D)    = lhs? C ∧ lhs? D
 lhs? (C ⊔ D)    = lhs? C ∧ lhs? D
-lhs? (C ⇒ D)    = false
+lhs? (¬ C)      = false
 lhs? (∀[ R ] C) = false
 lhs? (∃⟨ R ⟩ C) = lhs? C
 lhs? (≤1 R)     = false
@@ -51,7 +50,7 @@ lhs ⊥                 = ⊥
 lhs (C ⊓ D)    {C⊓D✓} = lhs C {□-proj₁ C⊓D✓} ⊓ lhs D {□-proj₂ {lhs? C} C⊓D✓}
 lhs (C ⊔ D)    {C⊔D✓} = lhs C {□-proj₁ C⊔D✓} ⊔ lhs D {□-proj₂ {lhs? C} C⊔D✓}
 lhs (∃⟨ R ⟩ C) {C✓}   = ∃⟨ R ⟩ (lhs C {C✓})
-lhs (C ⇒ D)    {}
+lhs (¬ C)      {}
 lhs (∀[ R ] C) {}
 lhs (≤1 R)     {}
 
@@ -61,7 +60,7 @@ rhs? ⊤          = true
 rhs? ⊥          = false
 rhs? (C ⊓ D)    = rhs? C ∧ rhs? D
 rhs? (C ⊔ D)    = false
-rhs? (C ⇒ D)    = lhs? C ∧ rhs? D
+rhs? (¬ C)      = false
 rhs? (∀[ R ] C) = rhs? C
 rhs? (∃⟨ R ⟩ C) = false
 rhs? (≤1 R)     = true
@@ -70,11 +69,11 @@ rhs : ∀ C {C✓ : □(rhs? C)} → RHS C
 rhs ⟨ c ⟩             = ⟨ c ⟩
 rhs ⊤                 = ⊤
 rhs (C ⊓ D)    {C⊓D✓} = rhs C {□-proj₁ C⊓D✓} ⊓ rhs D {□-proj₂ {rhs? C} C⊓D✓}
-rhs (C ⇒ D)    {C⇒D✓} = lhs C {□-proj₁ C⇒D✓} ⇒ rhs D {□-proj₂ {lhs? C} C⇒D✓}
 rhs (∀[ R ] C) {C✓}   = ∀[ R ] (rhs C {C✓})
 rhs (≤1 R)            = ≤1 R
 rhs ⊥          {}
 rhs (C ⊔ D)    {}
+rhs (¬ C)      {}
 rhs (∃⟨ R ⟩ C) {}
 
 μTBox? : TBox Σ → Bool

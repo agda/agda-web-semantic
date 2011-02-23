@@ -21,7 +21,7 @@ data Concept (Σ : Signature) : Set where
   ⊥ : Concept Σ
   _⊓_ : (C D : Concept Σ) → Concept Σ
   _⊔_ : (C D : Concept Σ) → Concept Σ
-  _⇒_ : (C D : Concept Σ) → Concept Σ
+  ¬ : (C : Concept Σ) → Concept Σ
   ∀[_]_ : (R : Role Σ) (C : Concept Σ) → Concept Σ
   ∃⟨_⟩_ : (R : Role Σ) (C : Concept Σ) → Concept Σ
   ≤1 : (R : Role Σ) → Concept Σ
