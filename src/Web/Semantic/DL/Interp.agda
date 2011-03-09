@@ -26,3 +26,6 @@ open Interp public using
 
 _⊨_≉_ : ∀ {Σ Δ} → (I : Interp Σ Δ) → Δ → Δ → Set
 I ⊨ x ≉ y = ¬(I ⊨ x ≈ y)
+
+Quotient : ∀ Σ → (Interp Σ (IN Σ)) → Set
+Quotient Σ I = ∀ {x} → (I ⊨ x ≈ ind I x)

@@ -1,8 +1,8 @@
 open import Data.Product using ( ∃ ; _×_ ; _,_ )
 open import Data.Sum using ( inj₁ ; inj₂ )
-open import Relation.Unary using ( _∈_ ; ∅ ; U ; _∪_ ; _∩_ ; ∁ )
+open import Relation.Unary using ( _∈_ ; _∉_ ; ∅ ; U ; _∪_ ; _∩_ ; ∁ )
 open import Web.Semantic.DL.ABox.Signature using ( Signature ; tsig )
-open import Web.Semantic.DL.Concept using ( Concept ; ⟨_⟩ ; ¬⟨_⟩ ; ⊤ ; ⊥ ; _⊓_ ; _⊔_ ; ∀[_]_ ; ∃⟨_⟩_ ; ≤1 ; >1 )
+open import Web.Semantic.DL.Concept using ( Concept ; ⟨_⟩ ; ¬⟨_⟩ ; ⊤ ; ⊥ ; _⊓_ ; _⊔_ ; ∀[_]_ ; ∃⟨_⟩_ ; ≤1 ; >1 ; neg )
 open import Web.Semantic.DL.Interp using ( Interp ; _⊨_≈_ ; _⊨_≉_ ; con ; con-≈ ; ≈-refl ; ≈-sym ; ≈-trans )
 open import Web.Semantic.DL.Interp.Order using ( _≤_ ; ≤-resp-con ; ≤-resp-≈ )
 open import Web.Semantic.DL.Role.Model using ( _⟦_⟧₂ ; ⟦⟧₂-resp-≈ ; ⟦⟧₂-resp-≤ )
@@ -73,3 +73,17 @@ I ⟦ >1 R     ⟧₁ = λ x → ∃ λ y → ∃ λ z → ((x , y) ∈ I ⟦ R 
     ≤-resp-≈ I≤J (x∈⟦≤1R⟧ y z (⟦⟧₂-resp-≤ J≤I R xy∈⟦R⟧) (⟦⟧₂-resp-≤ J≤I R xz∈⟦R⟧))
 ⟦⟧₁-resp-≤≥ {I} {J} I≤J J≤I (>1 R) (y , z , xy∈⟦R⟧ , xz∈⟦R⟧ , y≉z) = 
   (y , z , ⟦⟧₂-resp-≤ I≤J R xy∈⟦R⟧ , ⟦⟧₂-resp-≤ I≤J R xz∈⟦R⟧ , y≉z ∘ ≤-resp-≈ J≤I)
+
+neg-sound : ∀ I {x} C → (x ∈ I ⟦ neg C ⟧₁) → (x ∉ I ⟦ C ⟧₁)
+neg-sound I ⟨ c ⟩ x∉⟦c⟧ x∈⟦c⟧ = x∉⟦c⟧ x∈⟦c⟧
+neg-sound I ¬⟨ c ⟩ x∈⟦c⟧ x∉⟦c⟧ = x∉⟦c⟧ x∈⟦c⟧
+neg-sound I ⊤ () _
+neg-sound I ⊥ _ ()
+neg-sound I (C ⊓ D) (inj₁ x∈⟦¬C⟧) (x∈⟦C⟧ , x∈⟦D⟧) = neg-sound I C x∈⟦¬C⟧ x∈⟦C⟧
+neg-sound I (C ⊓ D) (inj₂ x∈⟦¬D⟧) (x∈⟦C⟧ , x∈⟦D⟧) = neg-sound I D x∈⟦¬D⟧ x∈⟦D⟧
+neg-sound I (C ⊔ D) (x∈⟦¬C⟧ , x∈⟦¬D⟧) (inj₁ x∈⟦C⟧) = neg-sound I C x∈⟦¬C⟧ x∈⟦C⟧
+neg-sound I (C ⊔ D) (x∈⟦¬C⟧ , x∈⟦¬D⟧) (inj₂ x∈⟦D⟧) = neg-sound I D x∈⟦¬D⟧ x∈⟦D⟧
+neg-sound I (∀[ R ] C) (y , xy∈⟦R⟧ , y∈⟦¬C⟧) x∈⟦∀RC⟧ = neg-sound I C y∈⟦¬C⟧ (x∈⟦∀RC⟧ y xy∈⟦R⟧)
+neg-sound I (∃⟨ R ⟩ C) x∈⟦∀R¬C⟧ (y , xy∈⟦R⟧ , y∈⟦C⟧) = neg-sound I C (x∈⟦∀R¬C⟧ y xy∈⟦R⟧) y∈⟦C⟧
+neg-sound I (≤1 R) (y , z , xy∈⟦R⟧ , xz∈⟦R⟧ , y≉z) x∈⟦≤1R⟧ = y≉z (x∈⟦≤1R⟧ y z xy∈⟦R⟧ xz∈⟦R⟧)
+neg-sound I (>1 R) x∈⟦≤1R⟧ (y , z , xy∈⟦R⟧ , xz∈⟦R⟧ , y≉z) = y≉z (x∈⟦≤1R⟧ y z xy∈⟦R⟧ xz∈⟦R⟧)
