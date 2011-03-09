@@ -9,39 +9,36 @@ open import Web.Semantic.DL.ABox.Minimizable using
   ( μABox ; ε ; _,_ ; _∼_ ; _∈₁_ ; _∈₂_ )
 open import Web.Semantic.DL.ABox.Model using 
   ( _⟦_⟧₀ ; _⊨a_ ; Assertions✓ )
+open import Web.Semantic.DL.ABox.Signature using ( Signature ; IN )
+open import Web.Semantic.DL.Concept using ( ⟨_⟩ ; ¬⟨_⟩ ; ⊤ ; ⊥ ; _⊓_ ; _⊔_ ; ∀[_]_ ; ∃⟨_⟩_ ; ≤1 ; >1 )
+open import Web.Semantic.DL.Concept.Model using ( _⟦_⟧₁ ; ⟦⟧₁-resp-≈ )
 open import Web.Semantic.DL.Interp using
   ( Interp ; _⊨_≈_ ; ≈-refl ; ≈-sym ; ≈-trans )
 open import Web.Semantic.DL.Interp.Order using ( _≤_ )
 open import Web.Semantic.DL.KB using ( KB ; tbox ; abox )
 open import Web.Semantic.DL.KB.Minimizable using ( μKB ; μtbox ; μabox )
 open import Web.Semantic.DL.KB.Model using ( _⊨_ )
+open import Web.Semantic.DL.Role using ( ⟨_⟩ ; ⟨_⟩⁻¹ )
+open import Web.Semantic.DL.Role.Model using ( _⟦_⟧₂ ; ⟦⟧₂-resp-≈ )
 open import Web.Semantic.DL.Sequent using 
   ( _⊢_ ; assert ; ∼-refl ; ∼-sym ; ∼-trans ; ∼-≤1
   ; ∈₂-resp-∼ ; ∈₂-subsum ; ∈₂-inv-I ; ∈₂-inv-E
   ; ∈₁-resp-∼ ; ∈₁-subsum ; ∈₁-⊤-I ; ∈₁-⊓-I ; ∈₁-⊓-E₁ ; ∈₁-⊓-E₂ 
   ; ∈₁-⊔-I₁ ; ∈₁-⊔-I₂ ; ∈₁-∃-I ; ∈₁-∀-E )
-open import Web.Semantic.DL.Signature using ( Signature )
-open import Web.Semantic.DL.TBox using
-  ( Concept ; Role ; TBox ; Axioms
-  ; ⟨_⟩ ; ¬⟨_⟩ ; ⟨_⟩⁻¹ ; ⊤ ; ⊥ ; _⊓_ ; _⊔_ ; ∀[_]_ ; ∃⟨_⟩_ ; ≤1 ; >1
-  ; ε ; _,_ ;_⊑₁_ ; _⊑₂_ )
+open import Web.Semantic.DL.TBox using ( TBox ; Axioms ; ε ; _,_ ;_⊑₁_ ; _⊑₂_ )
 open import Web.Semantic.DL.TBox.Minimizable using 
   ( LHS ; RHS ; μTBox
   ; ⟨_⟩ ; ⊤ ; ⊥ ; _⊓_ ; _⊔_ ; ∀[_]_ ; ∃⟨_⟩_ ; ≤1
   ; ε ; _,_ ;_⊑₁_ ; _⊑₂_ )
-open import Web.Semantic.DL.TBox.Model using 
-  ( _⟦_⟧₂ ; _⟦_⟧₁ ; ⟦⟧₂-resp-≈ ; ⟦⟧₁-resp-≈ ; _⊨t_ ; Axioms✓ )
+open import Web.Semantic.DL.TBox.Model using ( _⊨t_ ; Axioms✓ )
 open import Web.Semantic.Util using ( Subset ; ⊆-refl ; id )
 
-module Web.Semantic.DL.Sequent.Model {Σ : Signature} {X : Set} where
+module Web.Semantic.DL.Sequent.Model {Σ : Signature} where
 
-minimal : (K : KB Σ X) → Interp Σ X
+minimal : (K : KB Σ) → Interp Σ (IN Σ)
 minimal K = record 
-  { setoid = record
-    { Carrier = X
-    ; _≈_ = λ x y → (K ⊢ x ∼ y)
-    ; isEquivalence = record { refl = ∼-refl ; sym = ∼-sym ; trans = ∼-trans }
-    }
+  { _≈_ = λ x y → (K ⊢ x ∼ y)
+  ; isEquivalence = record { refl = ∼-refl ; sym = ∼-sym ; trans = ∼-trans }
   ; ind = id
   ; con = λ c x → K ⊢ x ∈₁ ⟨ c ⟩
   ; rol = λ r xy → K ⊢ xy ∈₂ ⟨ r ⟩
@@ -91,26 +88,25 @@ minimal-model {K} μK =
   minimal-abox (x ∈₁ C)       x∈C⊆A  = sound₁ K C (assert (x∈C⊆A refl))
   minimal-abox ((x , y) ∈₂ R) xy∈R⊆A = sound₂ K R (assert (xy∈R⊆A refl))
 
-minimal-minimal : ∀ K I → (I ⊨ K) → (minimal K ≤ I)
-minimal-minimal K I (I⊨T , I⊨A) = record 
-  { f = λ x → I ⟦ x ⟧₀
-  ; ≤-resp-≈ = minimal-≈
-  ; ≤-resp-ind = minimal-≈
+minimal-minimal : ∀ K I → (∀ {x} → (I ⊨ x ≈ I ⟦ x ⟧₀)) → (I ⊨ K) → (minimal K ≤ I)
+minimal-minimal K I ≈-resp-ind (I⊨T , I⊨A) = record 
+  { ≤-resp-≈ = minimal-≈
+  ; ≤-resp-ind = ≈-resp-ind
   ; ≤-resp-con = minimal-con
   ; ≤-resp-rol = minimal-rol
   } where 
     mutual
 
-      minimal-≈ : ∀ {x y} → (K ⊢ x ∼ y) → (I ⊨ I ⟦ x ⟧₀ ≈ I ⟦ y ⟧₀)
-      minimal-≈ (assert x∼y∈A)         = Assertions✓ I (abox K) x∼y∈A I⊨A
+      minimal-≈ : ∀ {x y} → (K ⊢ x ∼ y) → (I ⊨ x ≈ y)
+      minimal-≈ (assert x∼y∈A)         = ≈-trans I ≈-resp-ind (≈-trans I (Assertions✓ I (abox K) x∼y∈A I⊨A) (≈-sym I ≈-resp-ind))
       minimal-≈ ∼-refl                 = ≈-refl I
       minimal-≈ (∼-sym x∼y)            = ≈-sym I (minimal-≈ x∼y)
       minimal-≈ (∼-trans x∼y y∼z)      = ≈-trans I (minimal-≈ x∼y) (minimal-≈ y∼z)
       minimal-≈ (∼-≤1 x∈≤1R xy∈R xz∈R) = minimal-con x∈≤1R _ _ (minimal-rol xy∈R) (minimal-rol xz∈R)
 
-      minimal-con : ∀ {x C} → (K ⊢ x ∈₁ C) → (I ⟦ x ⟧₀ ∈ I ⟦ C ⟧₁)
-      minimal-con (assert x∈C∈A)              = Assertions✓ I (abox K) x∈C∈A I⊨A
-      minimal-con (∈₁-resp-∼ {C = C} x∈C x∼y) = ⟦⟧₁-resp-≈ I C (minimal-con x∈C) (minimal-≈ x∼y)
+      minimal-con : ∀ {x C} → (K ⊢ x ∈₁ C) → (x ∈ I ⟦ C ⟧₁)
+      minimal-con {x} {C} (assert x∈C∈A)      = ⟦⟧₁-resp-≈ I C (Assertions✓ I (abox K) x∈C∈A I⊨A) (≈-sym I ≈-resp-ind)
+      minimal-con {x} {C} (∈₁-resp-∼ x∈C x∼y) = ⟦⟧₁-resp-≈ I C (minimal-con x∈C) (minimal-≈ x∼y)
       minimal-con (∈₁-subsum x∈C C⊑D∈T)       = Axioms✓ I (tbox K) C⊑D∈T I⊨T (minimal-con x∈C)
       minimal-con ∈₁-⊤-I                      = tt
       minimal-con (∈₁-⊓-I x∈C x∈D)            = (minimal-con x∈C , minimal-con x∈D)
@@ -121,9 +117,9 @@ minimal-minimal K I (I⊨T , I⊨A) = record
       minimal-con (∈₁-∀-E x∈[R]C xy∈R)        = minimal-con x∈[R]C _ (minimal-rol xy∈R)
       minimal-con (∈₁-∃-I xy∈R y∈C)           = (_ , minimal-rol xy∈R , minimal-con y∈C)
 
-      minimal-rol : ∀ {x y R} → (K ⊢ (x , y) ∈₂ R) → ((I ⟦ x ⟧₀ , I ⟦ y ⟧₀) ∈ I ⟦ R ⟧₂)
-      minimal-rol (assert xy∈R∈A)                  = Assertions✓ I (abox K) xy∈R∈A I⊨A
-      minimal-rol (∈₂-resp-∼ {R = R} w∼x xy∈R y∼z) = ⟦⟧₂-resp-≈ I R (minimal-≈ w∼x) (minimal-rol xy∈R) (minimal-≈ y∼z)
-      minimal-rol (∈₂-subsum xy∈Q Q⊑R∈T)           = Axioms✓ I (tbox K) Q⊑R∈T I⊨T (minimal-rol xy∈Q)
-      minimal-rol (∈₂-inv-I xy∈r)                  = minimal-rol xy∈r
-      minimal-rol (∈₂-inv-E xy∈r⁻)                 = minimal-rol xy∈r⁻
+      minimal-rol : ∀ {x y R} → (K ⊢ (x , y) ∈₂ R) → ((x , y) ∈ I ⟦ R ⟧₂)
+      minimal-rol {x} {y} {R} (assert xy∈R∈A)          = ⟦⟧₂-resp-≈ I R ≈-resp-ind (Assertions✓ I (abox K) xy∈R∈A I⊨A) (≈-sym I ≈-resp-ind)
+      minimal-rol {x} {y} {R} (∈₂-resp-∼ w∼x xy∈R y∼z) = ⟦⟧₂-resp-≈ I R (minimal-≈ w∼x) (minimal-rol xy∈R) (minimal-≈ y∼z)
+      minimal-rol (∈₂-subsum xy∈Q Q⊑R∈T)               = Axioms✓ I (tbox K) Q⊑R∈T I⊨T (minimal-rol xy∈Q)
+      minimal-rol (∈₂-inv-I xy∈r)                      = minimal-rol xy∈r
+      minimal-rol (∈₂-inv-E xy∈r⁻)                     = minimal-rol xy∈r⁻

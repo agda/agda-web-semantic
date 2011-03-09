@@ -6,9 +6,12 @@ open import Data.Unit using ()
 open import Level using ( zero )
 open import Relation.Binary using ()
 open import Relation.Binary.PropositionalEquality using ( _≡_ )
+open import Relation.Nullary using ( Dec ; yes ; no )
 open import Relation.Unary using ( _∈_ ; _⊆_ )
 
 module Web.Semantic.Util where
+
+infixr 9 _∘_
 
 id : ∀ {X : Set} → X → X
 id x = x
@@ -31,6 +34,11 @@ Subset X = X → Set
 _⁻¹ :  ∀ {X Y : Set} → Subset (X × Y) → Subset (Y × X)
 (R ⁻¹) (y , x) = R (x , y)
 
+-- Some proofs are classical, and depend on excluded middle.
+
+ExclMiddle : Set₁
+ExclMiddle = ∀ (X : Set) → Dec X
+
 -- Some nameclashes between the standard library and semantic web terminology:
 -- ⊤ and ⊥ are used for concepts, and T is used to range over T-Boxes.
 
@@ -45,3 +53,17 @@ open Data.Unit public using ( tt ) renaming ( ⊤ to True )
 □-proj₂ : ∀ {b c} → □(b ∧ c) → □ c
 □-proj₂ {true}  □c = □c
 □-proj₂ {false} ()
+
+-- Convert back and forth from Dec and Bool.
+
+is : ∀ {X : Set} → Dec X → Bool
+is (yes _) = true
+is (no _) = false
+
+is✓ : ∀{X x} → □(is {X} x) → X
+is✓ {X} {yes x} _ = x
+is✓ {X} {no _} ()
+ 
+is! : ∀ {X x} → X → □(is {X} x)
+is! {X} {yes _} x = tt
+is! {X} {no ¬x} x = ¬x x

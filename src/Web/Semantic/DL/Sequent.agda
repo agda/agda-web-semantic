@@ -1,21 +1,19 @@
 open import Data.Product using ( _×_ ; _,_ )
 open import Relation.Nullary using ( ¬_ )
 open import Relation.Unary using ( _∈_ ; ∅ ; _∪_ )
-open import Web.Semantic.DL.ABox using 
-  ( ABox ; Assertions ; ε ; _,_ ; _∼_ ; _∈₁_ ; _∈₂_ )
+open import Web.Semantic.DL.ABox using ( ABox ; Assertions ; ε ; _,_ ; _∼_ ; _∈₁_ ; _∈₂_ )
+open import Web.Semantic.DL.ABox.Signature using ( Signature )
+open import Web.Semantic.DL.Concept using ( ⟨_⟩ ; ⊤ ; ⊥ ; _⊓_ ; _⊔_ ; ∀[_]_ ; ∃⟨_⟩_ ; ≤1 )
 open import Web.Semantic.DL.KB using ( KB ; tbox ; abox )
-open import Web.Semantic.DL.Signature using ( Signature )
-open import Web.Semantic.DL.TBox using
-  ( Concept ; Role ; TBox ; Axioms
-  ; ⟨_⟩ ; ⟨_⟩⁻¹ ; ⊤ ; ⊥ ; _⊓_ ; _⊔_ ; ¬ ; ∀[_]_ ; ∃⟨_⟩_ ; ≤1
-  ; ε ; _,_ ;_⊑₁_ ; _⊑₂_ )
+open import Web.Semantic.DL.Role using ( ⟨_⟩ ; ⟨_⟩⁻¹ )
+open import Web.Semantic.DL.TBox using ( TBox ; Axioms ; ε ; _,_ ;_⊑₁_ ; _⊑₂_ )
 open import Web.Semantic.Util using ( Subset ; ⁅_⁆ )
 
-module Web.Semantic.DL.Sequent {Σ : Signature} {X : Set} where
+module Web.Semantic.DL.Sequent {Σ : Signature} where
 
 infixr 2 _⊢_
 
-data _⊢_ (K : KB Σ X) : ABox Σ X → Set where
+data _⊢_ (K : KB Σ) : ABox Σ → Set where
   assert : ∀ {B} → (B ∈ Assertions (abox K)) → (K ⊢ B)
   ∼-refl : ∀ {x} → (K ⊢ x ∼ x)
   ∼-sym : ∀ {x y} → (K ⊢ x ∼ y) → (K ⊢ y ∼ x)

@@ -2,11 +2,9 @@ open import Data.Bool using ( Bool ; true ; false ; _∧_ )
 open import Data.Product using ( _×_ )
 open import Relation.Binary.PropositionalEquality using ( _≡_ )
 open import Relation.Unary using ( _∈_ )
-open import Web.Semantic.DL.Signature using ( Signature )
-open import Web.Semantic.DL.TBox using
-  ( Concept ; Role ; TBox
-  ; ⟨_⟩ ; ¬⟨_⟩ ; ⟨_⟩⁻¹ ; ⊤ ; ⊥ ; _⊓_ ; _⊔_ ; ∀[_]_ ; ∃⟨_⟩_ ; ≤1 ; >1
-  ; ε ; _,_ ;_⊑₁_ ; _⊑₂_ )
+open import Web.Semantic.DL.Concept using ( Concept ; ⟨_⟩ ; ¬⟨_⟩ ; ⊤ ; ⊥ ; _⊓_ ; _⊔_ ; ∀[_]_ ; ∃⟨_⟩_ ; ≤1 ; >1 )
+open import Web.Semantic.DL.TBox.Signature using ( Signature )
+open import Web.Semantic.DL.TBox using ( TBox ; ε ; _,_ ;_⊑₁_ ; _⊑₂_ )
 open import Web.Semantic.Util using ( Subset ; □ ; □-proj₁ ; □-proj₂ )
 
 module Web.Semantic.DL.TBox.Minimizable {Σ : Signature} where
