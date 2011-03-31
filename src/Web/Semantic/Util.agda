@@ -90,6 +90,18 @@ data _⊕_⊕_ (X V Y : Set) : Set where
   bnode : (v : V) → (X ⊕ V ⊕ Y) -- Blank node
   enode : (y : Y) → (X ⊕ V ⊕ Y) -- Exported node
 
+_⟨⊕⟩_⟨⊕⟩_ : ∀ {U V W X Y Z} → (W → X) → (U → V) → (Y → Z) →
+  (W ⊕ U ⊕ Y) → (X ⊕ V ⊕ Z)
+(f ⟨⊕⟩ g ⟨⊕⟩ h) (inode w) = inode (f w)
+(f ⟨⊕⟩ g ⟨⊕⟩ h) (bnode u) = bnode (g u)
+(f ⟨⊕⟩ g ⟨⊕⟩ h) (enode y) = enode (h y)
+
+_[⊕]_[⊕]_ : ∀ {X V Y Z : Set} → (X → Z) → (V → Z) → (Y → Z) →
+   (X ⊕ V ⊕ Y) → Z
+(f [⊕] g [⊕] h) (inode x) = f x
+(f [⊕] g [⊕] h) (bnode v) = g v
+(f [⊕] g [⊕] h) (enode y) = h y
+
 left : ∀ {V W X Y Z} → (X ⊕ V ⊕ Y) → (X ⊕ (V ⊕ Y ⊕ W) ⊕ Z)
 left (inode x) = inode x
 left (bnode v) = bnode (inode v)

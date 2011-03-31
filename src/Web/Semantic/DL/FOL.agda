@@ -1,5 +1,5 @@
 open import Data.Product using ( _×_ )
-open import Web.Semantic.DL.ABox.Signature using ( Signature ; IN ; CN ; RN )
+open import Web.Semantic.DL.Signature using ( Signature ; CN ; RN )
 
 module Web.Semantic.DL.FOL where
 
@@ -7,14 +7,14 @@ module Web.Semantic.DL.FOL where
 
 infixr 4 _∧_
 
-data Formula (Σ : Signature) : Set where
-  true : Formula Σ
-  false : Formula Σ
-  _∧_ : Formula Σ → Formula Σ → Formula Σ
-  _∈₁_ : IN Σ → CN Σ → Formula Σ
-  _∈₁_⇒_ : IN Σ → CN Σ → Formula Σ → Formula Σ
-  _∈₂_ : (IN Σ × IN Σ) → RN Σ → Formula Σ
-  _∈₂_⇒_ : (IN Σ × IN Σ) → RN Σ → Formula Σ → Formula Σ
-  _∼_ : IN Σ → IN Σ → Formula Σ
-  _∼_⇒_ : IN Σ → IN Σ → Formula Σ → Formula Σ
-  ∀₁ : (IN Σ → Formula Σ) → Formula Σ
+data Formula (Σ : Signature) (Δ : Set) : Set where
+  true : Formula Σ Δ
+  false : Formula Σ Δ
+  _∧_ : Formula Σ Δ → Formula Σ Δ → Formula Σ Δ
+  _∈₁_ : Δ → CN Σ → Formula Σ Δ
+  _∈₁_⇒_ : Δ → CN Σ → Formula Σ Δ → Formula Σ Δ
+  _∈₂_ : (Δ × Δ) → RN Σ → Formula Σ Δ
+  _∈₂_⇒_ : (Δ × Δ) → RN Σ → Formula Σ Δ → Formula Σ Δ
+  _∼_ : Δ → Δ → Formula Σ Δ
+  _∼_⇒_ : Δ → Δ → Formula Σ Δ → Formula Σ Δ
+  ∀₁ : (Δ → Formula Σ Δ) → Formula Σ Δ
