@@ -1,5 +1,5 @@
 open import Web.Semantic.DL.Role using ( Role )
-open import Web.Semantic.DL.TBox.Signature using ( Signature ; CN ; RN )
+open import Web.Semantic.DL.Signature using ( Signature ; CN ; RN )
 
 module Web.Semantic.DL.Concept where
 

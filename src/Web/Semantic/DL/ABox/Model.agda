@@ -2,44 +2,75 @@ open import Data.Product using ( _×_ ; _,_ )
 open import Data.Sum using ( inj₁ ; inj₂ )
 open import Relation.Binary.PropositionalEquality using ( refl )
 open import Relation.Unary using ( _∈_ )
-open import Web.Semantic.DL.ABox using ( ABox ; Assertions ; ε ; _,_ ; _∼_ ; _∈₁_ ; _∈₂_ )
-open import Web.Semantic.DL.ABox.Signature using ( Signature ; IN )
-open import Web.Semantic.DL.Concept.Model using ( _⟦_⟧₁ ; ⟦⟧₁-resp-≈ ; ⟦⟧₁-resp-≤≥ )
-open import Web.Semantic.DL.Interp using ( Interp ; _⊨_≈_ ; ind ; ≈-refl ; ≈-sym ; ≈-trans )
-open import Web.Semantic.DL.Interp.Order using ( _≤_ ; ≤-resp-ind ; ≤-resp-≈ )
-open import Web.Semantic.DL.Role.Model using ( _⟦_⟧₂ ; ⟦⟧₂-resp-≈ ; ⟦⟧₂-resp-≤ )
+open import Web.Semantic.DL.ABox using ( ABox ; Assertions ; ⟨ABox⟩ ; ε ; _,_ ; _∼_ ; _∈₁_ ; _∈₂_ )
+open import Web.Semantic.DL.ABox.Interp using ( Interp ; _,_ ; ⌊_⌋ ; ind ; _*_ )
+open import Web.Semantic.DL.ABox.Interp.Morphism using ( _≲_ ; ≲⌊_⌋ ; ≲-resp-ind )
+open import Web.Semantic.DL.Signature using ( Signature )
+open import Web.Semantic.DL.TBox.Interp using ( Δ ; _⊨_≈_ ; ≈-sym ; ≈-trans ; con ; rol ; con-≈ ; rol-≈ )
+open import Web.Semantic.DL.TBox.Interp.Morphism using ( ≲-resp-≈ ; ≲-resp-con ; ≲-resp-rol )
 open import Web.Semantic.Util using ( True ; tt )
 
-module Web.Semantic.DL.ABox.Model {Σ : Signature} {Δ : Set} where
+module Web.Semantic.DL.ABox.Model {Σ : Signature} where
 
 infixr 2 _⊨a_
 
-_⟦_⟧₀ : ∀ I → (IN Σ) → Δ
-I ⟦ i ⟧₀ = ind I i
+_⟦_⟧₀ : ∀ {X} (I : Interp Σ X) → X → (Δ ⌊ I ⌋)
+I ⟦ x ⟧₀ = ind I x
 
-_⊨a_ : Interp Σ Δ → ABox Σ → Set
+_⊨a_ : ∀ {X} → Interp Σ X → ABox Σ X → Set
 I ⊨a ε            = True
 I ⊨a (A , B)      = (I ⊨a A) × (I ⊨a B)
-I ⊨a x ∼ y        = I ⊨ I ⟦ x ⟧₀ ≈ I ⟦ y ⟧₀
-I ⊨a x ∈₁ C       = I ⟦ x ⟧₀ ∈ I ⟦ C ⟧₁
-I ⊨a (x , y) ∈₂ R = (I ⟦ x ⟧₀ , I ⟦ y ⟧₀) ∈ I ⟦ R ⟧₂
+I ⊨a x ∼ y        = ⌊ I ⌋ ⊨ ind I x ≈ ind I y
+I ⊨a x ∈₁ c       = ind I x ∈ con ⌊ I ⌋ c
+I ⊨a (x , y) ∈₂ r = (ind I x , ind I y) ∈ rol ⌊ I ⌋ r
 
-Assertions✓ : ∀ I A {a} → (a ∈ Assertions A) → (I ⊨a A) → (I ⊨a a)
+Assertions✓ : ∀ {X} (I : Interp Σ X) A {a} → 
+  (a ∈ Assertions A) → (I ⊨a A) → (I ⊨a a)
 Assertions✓ I ε         ()         I⊨A
 Assertions✓ I (A , B)   (inj₁ a∈A) (I⊨A , I⊨B) = Assertions✓ I A a∈A I⊨A
 Assertions✓ I (A , B)   (inj₂ a∈B) (I⊨A , I⊨B) = Assertions✓ I B a∈B I⊨B
 Assertions✓ I (i ∼ j)   refl       I⊨A         = I⊨A
-Assertions✓ I (i ∈₁ C)  refl       I⊨A         = I⊨A
-Assertions✓ I (ij ∈₂ R) refl       I⊨A         = I⊨A
+Assertions✓ I (i ∈₁ c)  refl       I⊨A         = I⊨A
+Assertions✓ I (ij ∈₂ r) refl       I⊨A         = I⊨A
 
-⊨a-resp-≤≥ : ∀ {I J : Interp Σ Δ} → (I ≤ J) → (J ≤ I) → ∀ A → (I ⊨a A) → (J ⊨a A)
-⊨a-resp-≤≥ {I} {J} I≤J J≤I ε I⊨A = 
+⊨a-resp-≲ : ∀ {X} {I J : Interp Σ X} → (I ≲ J) → ∀ A → (I ⊨a A) → (J ⊨a A)
+⊨a-resp-≲ {X} {I} {J} I≲J ε I⊨A = 
   tt
-⊨a-resp-≤≥ {I} {J} I≤J J≤I (A , B) (I⊨A , I⊨B) = 
-  (⊨a-resp-≤≥ I≤J J≤I A I⊨A , ⊨a-resp-≤≥ I≤J J≤I B I⊨B)
-⊨a-resp-≤≥ {I} {J} I≤J J≤I (x ∼ y)   I⊨x∼y = 
-  ≈-trans J (≈-sym J (≤-resp-ind I≤J)) (≈-trans J (≤-resp-≈ I≤J I⊨x∼y) (≤-resp-ind I≤J))
-⊨a-resp-≤≥ {I} {J} I≤J J≤I (x ∈₁ C)  I⊨x∈C = 
-  ⟦⟧₁-resp-≈ J C (⟦⟧₁-resp-≤≥ I≤J J≤I C I⊨x∈C) (≤-resp-ind I≤J)
-⊨a-resp-≤≥ {I} {J} I≤J J≤I ((x , y) ∈₂ R) I⊨xy∈R = 
-  ⟦⟧₂-resp-≈ J R (≈-sym J (≤-resp-ind I≤J)) (⟦⟧₂-resp-≤ I≤J R I⊨xy∈R) (≤-resp-ind I≤J)
+⊨a-resp-≲ {X} {I} {J} I≲J (A , B) (I⊨A , I⊨B) = 
+  (⊨a-resp-≲ I≲J A I⊨A , ⊨a-resp-≲ I≲J B I⊨B)
+⊨a-resp-≲ {X} {I} {J} I≲J (x ∼ y)   I⊨x∼y = 
+  ≈-trans ⌊ J ⌋ (≈-sym ⌊ J ⌋ (≲-resp-ind I≲J x)) 
+    (≈-trans ⌊ J ⌋ (≲-resp-≈ ≲⌊ I≲J ⌋ I⊨x∼y) 
+      (≲-resp-ind I≲J y))
+⊨a-resp-≲ {X} {I} {J} I≲J (x ∈₁ c)  I⊨x∈c = 
+  con-≈ ⌊ J ⌋ c (≲-resp-con ≲⌊ I≲J ⌋ I⊨x∈c) (≲-resp-ind I≲J x)
+⊨a-resp-≲ {X} {I} {J} I≲J ((x , y) ∈₂ r) I⊨xy∈r = 
+  rol-≈ ⌊ J ⌋ r (≈-sym ⌊ J ⌋ (≲-resp-ind I≲J x)) 
+    (≲-resp-rol ≲⌊ I≲J ⌋ I⊨xy∈r) (≲-resp-ind I≲J y)
+
+⟨Abox⟩-resp-⊨ : ∀ {I X Y i j} (f : X → Y) → (∀ x → I ⊨ i x ≈ j (f x)) →
+  ∀ A → (I , i ⊨a A) → (I , j ⊨a ⟨ABox⟩ f A)
+⟨Abox⟩-resp-⊨ {I} f i≈j∘f ε I⊨ε = 
+  tt
+⟨Abox⟩-resp-⊨ {I} f i≈j∘f (A , B) (I⊨A , I⊨B) = 
+  (⟨Abox⟩-resp-⊨ f i≈j∘f A I⊨A , ⟨Abox⟩-resp-⊨ f i≈j∘f B I⊨B)
+⟨Abox⟩-resp-⊨ {I} f i≈j∘f (x ∼ y) x≈y = 
+  ≈-trans I (≈-sym I (i≈j∘f x)) (≈-trans I x≈y (i≈j∘f y))
+⟨Abox⟩-resp-⊨ {I} f i≈j∘f (x ∈₁ c) x∈⟦c⟧ =
+  con-≈ I c x∈⟦c⟧ (i≈j∘f x)
+⟨Abox⟩-resp-⊨ {I} f i≈j∘f ((x , y) ∈₂ r) xy∈⟦r⟧ =
+  rol-≈ I r (≈-sym I (i≈j∘f x)) xy∈⟦r⟧ (i≈j∘f y)
+
+*-resp-⟨ABox⟩ : ∀ {X Y} (f : Y → X) I A →
+  (I ⊨a ⟨ABox⟩ f A) → (f * I ⊨a A)
+*-resp-⟨ABox⟩ f (I , i) ε I⊨ε = 
+  tt
+*-resp-⟨ABox⟩ f (I , i) (A , B) (I⊨A , I⊨B) = 
+  (*-resp-⟨ABox⟩ f (I , i) A I⊨A , *-resp-⟨ABox⟩ f (I , i) B I⊨B )
+*-resp-⟨ABox⟩ f (I , i) (x ∼ y) x≈y = 
+  x≈y
+*-resp-⟨ABox⟩ f (I , i) (x ∈₁ c) x∈⟦c⟧ = 
+  x∈⟦c⟧
+*-resp-⟨ABox⟩ f (I , i) ((x , y) ∈₂ r) xy∈⟦c⟧ = 
+  xy∈⟦c⟧
+

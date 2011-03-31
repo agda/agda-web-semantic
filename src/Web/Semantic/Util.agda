@@ -1,5 +1,8 @@
+{-# OPTIONS --universe-polymorphism #-}
+
 open import Data.Bool using ( Bool ; true ; false ; _∧_ )
 open import Data.Empty using ()
+open import Data.List.Any using ()
 open import Data.Sum using ( _⊎_ ; inj₁ )
 open import Data.Product using ( ∃ ; ∄ ; _×_ ; _,_ )
 open import Data.Unit using ()
@@ -39,6 +42,9 @@ _⁻¹ :  ∀ {X Y : Set} → Subset (X × Y) → Subset (Y × X)
 ExclMiddle : Set₁
 ExclMiddle = ∀ (X : Set) → Dec X
 
+ExclMiddle₁ : Set₂
+ExclMiddle₁ = ∀ (X : Set₁) → Dec X
+
 -- Some nameclashes between the standard library and semantic web terminology:
 -- ⊤ and ⊥ are used for concepts, and T is used to range over T-Boxes.
 
@@ -56,14 +62,49 @@ open Data.Unit public using ( tt ) renaming ( ⊤ to True )
 
 -- Convert back and forth from Dec and Bool.
 
-is : ∀ {X : Set} → Dec X → Bool
+is : ∀ {ℓ} {X : Set ℓ} → Dec X → Bool
 is (yes _) = true
 is (no _) = false
 
-is✓ : ∀{X x} → □(is {X} x) → X
-is✓ {X} {yes x} _ = x
-is✓ {X} {no _} ()
+is✓ : ∀ {ℓ} {X : Set ℓ} {x : Dec X} → □(is x) → X
+is✓ {ℓ} {X} {yes x} _ = x
+is✓ {ℓ} {X} {no _} ()
  
-is! : ∀ {X x} → X → □(is {X} x)
-is! {X} {yes _} x = tt
-is! {X} {no ¬x} x = ¬x x
+is! : ∀ {ℓ} {X : Set ℓ} {x : Dec X} → X → □(is x)
+is! {ℓ} {X} {yes _} x = tt
+is! {ℓ} {X} {no ¬x} x = ¬x x
+
+-- Finite sets are ones backed by a list
+
+open Data.List.Any.Membership-≡ public using () renaming ( _∈_ to _∈ˡ_ )
+
+Finite : Set → Set
+Finite X = ∃ λ xs → ∀ (x : X) → (x ∈ˡ xs)
+
+-- A set divided, like Gaul, into three parts
+
+infix 6 _⊕_⊕_
+
+data _⊕_⊕_ (X V Y : Set) : Set where
+  inode : (x : X) → (X ⊕ V ⊕ Y) -- Imported node
+  bnode : (v : V) → (X ⊕ V ⊕ Y) -- Blank node
+  enode : (y : Y) → (X ⊕ V ⊕ Y) -- Exported node
+
+left : ∀ {V W X Y Z} → (X ⊕ V ⊕ Y) → (X ⊕ (V ⊕ Y ⊕ W) ⊕ Z)
+left (inode x) = inode x
+left (bnode v) = bnode (inode v)
+left (enode y) = bnode (bnode y)
+
+right : ∀ {V W X Y Z} → (Y ⊕ W ⊕ Z) → (X ⊕ (V ⊕ Y ⊕ W) ⊕ Z)
+right (inode y) = bnode (bnode y)
+right (bnode w) = bnode (enode w)
+right (enode z) = enode z
+
+merge : ∀ {V W X Y Z A : Set} →
+  ((X ⊕ V ⊕ Y) → A) → ((Y ⊕ W ⊕ Z) → A) → 
+    (X ⊕ (V ⊕ Y ⊕ W) ⊕ Z) → A
+merge f g (inode x)         = f (inode x)
+merge f g (bnode (inode v)) = f (bnode v)
+merge f g (bnode (bnode y)) = g (inode y)
+merge f g (bnode (enode w)) = g (bnode w)
+merge f g (enode z)         = g (enode z)

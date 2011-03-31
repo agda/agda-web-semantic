@@ -1,5 +1,5 @@
 open import Relation.Unary using ( ∅ ; _∪_ )
-open import Web.Semantic.DL.TBox.Signature using ( Signature ; CN ; RN )
+open import Web.Semantic.DL.Signature using ( Signature ; CN ; RN )
 open import Web.Semantic.Util using ( Subset ; ⁅_⁆ )
 
 module Web.Semantic.DL.Role where

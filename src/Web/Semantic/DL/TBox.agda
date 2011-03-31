@@ -1,7 +1,7 @@
 open import Relation.Unary using ( ∅ ; _∪_ )
 open import Web.Semantic.DL.Concept using ( Concept )
 open import Web.Semantic.DL.Role using ( Role )
-open import Web.Semantic.DL.TBox.Signature using ( Signature )
+open import Web.Semantic.DL.Signature using ( Signature )
 open import Web.Semantic.Util using ( Subset ; ⁅_⁆ )
 
 module Web.Semantic.DL.TBox where
