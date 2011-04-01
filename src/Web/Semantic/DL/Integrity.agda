@@ -9,8 +9,6 @@ open import Web.Semantic.Util using ( _⊕_⊕_ ; inode ; enode )
 
 module Web.Semantic.DL.Integrity {Σ : Signature} {X V Y : Set} where
 
-infixr 5 _,_
-
 -- A variant of the notion of OWL integrity in:
 
 --   Boris Motik, Ian Horrocks, and Ulrike Sattler. Bridging the gap between OWL and
@@ -21,7 +19,7 @@ infixr 5 _,_
 -- We strengthen this requirement to say that there is a minimal model of K,
 -- which validtes S.
 
-infix 5 _>>_ 
+infixr 4 _>>_ _,_
 infix 2 _⊕_⊨_
 
 -- J ∈ Initial I K whenever J is the initial extension of I
@@ -43,6 +41,18 @@ data Mediated (I : Interp Σ X) (J K : Interp Σ (X ⊕ V ⊕ Y))
     _,_ : (J≲K : J ≲ K) → (I≲K ≋ I≲J >> J≲K) × (Unique I J K I≲J I≲K J≲K)
       → Mediated I J K I≲J I≲K
 
+med-≲ : ∀ {I} {J K : Interp Σ (X ⊕ V ⊕ Y)} {I≲J I≲K} → 
+  (Mediated I J K I≲J I≲K) → (J ≲ K)
+med-≲ (J≲K , I≲K≋I≲J≲K , J≲K-uniq) = J≲K
+
+med-≋ : ∀ {I} {J K : Interp Σ (X ⊕ V ⊕ Y)} {I≲J I≲K} → 
+  (m : Mediated I J K I≲J I≲K) → (I≲K ≋ I≲J >> med-≲ m)
+med-≋ (J≲K , I≲K≋I≲J≲K , J≲K-uniq) = I≲K≋I≲J≲K
+
+med-uniq : ∀ {I} {J K : Interp Σ (X ⊕ V ⊕ Y)} {I≲J I≲K} → 
+  (m : Mediated I J K I≲J I≲K) → Unique I J K I≲J I≲K (med-≲ m)
+med-uniq (J≲K , I≲K≋I≲J≲K , J≲K-uniq) = J≲K-uniq
+
 Mediator : ∀ (I : Interp Σ X) → (J : Interp Σ (X ⊕ V ⊕ Y)) →
   (I ≲ inode * J) → (KB Σ (X ⊕ V ⊕ Y)) → Set₁
 Mediator I J I≲J KB = 
@@ -52,8 +62,31 @@ data Initial I KB (J : Interp Σ (X ⊕ V ⊕ Y)) : Set₁ where
   _,_ : ∀ (I≲J : I ≲ inode * J) → (J ⊨ KB) × (Mediator I J I≲J KB) → 
     (J ∈ Initial I KB)
 
+init-≲ : ∀ {I KB} {J : Interp Σ (X ⊕ V ⊕ Y)} → 
+  (J ∈ Initial I KB) → (I ≲ inode * J)
+init-≲ (I≲J , J⊨KB , J-med) = I≲J
+
+init-⊨ : ∀ {I KB} {J : Interp Σ (X ⊕ V ⊕ Y)} → 
+  (J ∈ Initial I KB) → (J ⊨ KB)
+init-⊨ (I≲J , J⊨KB , J-med) = J⊨KB
+
+init-med : ∀ {I KB} {J : Interp Σ (X ⊕ V ⊕ Y)} → 
+  (J-init : J ∈ Initial I KB) → Mediator I J (init-≲ J-init) KB
+init-med (I≲J , J⊨KB , J-med) = J-med
+
 -- I ⊕ KB₁ ⊨ KB₂ whenever the initial extension of I satisfying
 -- KB₁ exists, and has exports satisfying KB₂.
 
 data _⊕_⊨_ I (KB₁ : KB Σ (X ⊕ V ⊕ Y)) KB₂ : Set₁ where
     _,_ : ∀ J → ((J ∈ Initial I KB₁) × (enode * J ⊨ KB₂)) → (I ⊕ KB₁ ⊨ KB₂)
+
+extension : ∀ {I KB₁ KB₂} → (I ⊕ KB₁ ⊨ KB₂) → (Interp Σ (X ⊕ V ⊕ Y))
+extension (J , J-init , J⊨KB₂) = J
+
+ext-init : ∀ {I} {KB₁ : KB Σ (X ⊕ V ⊕ Y)} {KB₂} → 
+  (I⊕KB₁⊨KB₂ : I ⊕ KB₁ ⊨ KB₂) → (extension I⊕KB₁⊨KB₂ ∈ Initial I KB₁)
+ext-init (J , J-init , J⊨KB₂) = J-init
+
+ext-⊨ : ∀ {I} {KB₁ : KB Σ (X ⊕ V ⊕ Y)} {KB₂} → 
+  (I⊕KB₁⊨KB₂ : I ⊕ KB₁ ⊨ KB₂) → (enode * (extension I⊕KB₁⊨KB₂) ⊨ KB₂)
+ext-⊨ (J , J-init , J⊨KB₂) = J⊨KB₂

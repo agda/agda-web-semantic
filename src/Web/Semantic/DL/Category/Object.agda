@@ -7,7 +7,7 @@ open import Web.Semantic.Util using ( Finite )
 
 module Web.Semantic.DL.Category.Object {Σ : Signature} where
 
-infixr 5 _,_
+infixr 4 _,_
 
 data Object (S T : TBox Σ) : Set₁ where
   _,_ : ∀ X → (X ∈ Finite × ABox Σ X) → Object S T

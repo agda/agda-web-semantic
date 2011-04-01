@@ -4,6 +4,8 @@ open import Web.Semantic.DL.TBox using ( TBox )
 
 module Web.Semantic.DL.KB where
 
+infixr 4 _,_
+
 data KB (Σ : Signature) (X : Set) : Set where
   _,_ : (T : TBox Σ) → (A : ABox Σ X) → KB Σ X
 

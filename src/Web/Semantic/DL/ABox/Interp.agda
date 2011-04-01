@@ -5,7 +5,8 @@ open import Web.Semantic.Util using  ( _∘_ )
 
 module Web.Semantic.DL.ABox.Interp where
 
-infix  5 _*_ _,_
+infixr 4 _,_
+infixr 5 _*_ 
 
 data Interp (Σ : Signature) (X : Set) : Set₁ where
   _,_ : ∀ I → (X → Δ I) → (Interp Σ X)
