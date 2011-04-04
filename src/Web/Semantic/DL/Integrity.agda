@@ -32,13 +32,13 @@ _>>_ : ∀ {I : Interp Σ X} {J K : Interp Σ (X ⊕ V ⊕ Y)} →
 I≲J >> J≲K = ≲-trans I≲J (inode ** J≲K)
 
 Unique : ∀ (I : Interp Σ X) → (J K : Interp Σ (X ⊕ V ⊕ Y)) →
-  (I ≲ inode * J) → (I ≲ inode * K) → (J ≲ K) → Set₁
-Unique I J K I≲J I≲K J≲K =
-  ∀ J≲K′ → (I≲K ≋ I≲J >> J≲K′) → (J≲K ≋ J≲K′)
+  (I ≲ inode * J) → (I ≲ inode * K) → Set
+Unique I J K I≲J I≲K = ∀ (J≲₁K J≲₂K : J ≲ K) → 
+  (I≲K ≋ I≲J >> J≲₁K) → (I≲K ≋ I≲J >> J≲₂K) → (J≲₁K ≋ J≲₂K)
 
 data Mediated (I : Interp Σ X) (J K : Interp Σ (X ⊕ V ⊕ Y))
-  (I≲J : I ≲ inode * J) (I≲K : I ≲ inode * K) : Set₁ where
-    _,_ : (J≲K : J ≲ K) → (I≲K ≋ I≲J >> J≲K) × (Unique I J K I≲J I≲K J≲K)
+  (I≲J : I ≲ inode * J) (I≲K : I ≲ inode * K) : Set where
+    _,_ : (J≲K : J ≲ K) → (I≲K ≋ I≲J >> J≲K) × (Unique I J K I≲J I≲K)
       → Mediated I J K I≲J I≲K
 
 med-≲ : ∀ {I} {J K : Interp Σ (X ⊕ V ⊕ Y)} {I≲J I≲K} → 
@@ -50,7 +50,7 @@ med-≋ : ∀ {I} {J K : Interp Σ (X ⊕ V ⊕ Y)} {I≲J I≲K} →
 med-≋ (J≲K , I≲K≋I≲J≲K , J≲K-uniq) = I≲K≋I≲J≲K
 
 med-uniq : ∀ {I} {J K : Interp Σ (X ⊕ V ⊕ Y)} {I≲J I≲K} → 
-  (m : Mediated I J K I≲J I≲K) → Unique I J K I≲J I≲K (med-≲ m)
+  (Mediated I J K I≲J I≲K) → Unique I J K I≲J I≲K
 med-uniq (J≲K , I≲K≋I≲J≲K , J≲K-uniq) = J≲K-uniq
 
 Mediator : ∀ (I : Interp Σ X) → (J : Interp Σ (X ⊕ V ⊕ Y)) →

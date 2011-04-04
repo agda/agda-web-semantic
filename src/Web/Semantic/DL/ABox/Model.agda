@@ -48,18 +48,19 @@ Assertions✓ I (ij ∈₂ r) refl       I⊨A         = I⊨A
   rol-≈ ⌊ J ⌋ r (≈-sym ⌊ J ⌋ (≲-resp-ind I≲J x)) 
     (≲-resp-rol ≲⌊ I≲J ⌋ I⊨xy∈r) (≲-resp-ind I≲J y)
 
-⟨Abox⟩-resp-⊨ : ∀ {I X Y i j} (f : X → Y) → (∀ x → I ⊨ i x ≈ j (f x)) →
-  ∀ A → (I , i ⊨a A) → (I , j ⊨a ⟨ABox⟩ f A)
-⟨Abox⟩-resp-⊨ {I} f i≈j∘f ε I⊨ε = 
+⟨Abox⟩-resp-⊨ : ∀ {X Y} {I : Interp Σ X} {j : Y → Δ ⌊ I ⌋} 
+  (f : X → Y) → (∀ x → ⌊ I ⌋ ⊨ ind I x ≈ j (f x)) →
+    ∀ A → (I ⊨a A) → (⌊ I ⌋ , j ⊨a ⟨ABox⟩ f A)
+⟨Abox⟩-resp-⊨ {X} {Y} {I} f i≈j∘f ε I⊨ε = 
   tt
-⟨Abox⟩-resp-⊨ {I} f i≈j∘f (A , B) (I⊨A , I⊨B) = 
+⟨Abox⟩-resp-⊨ {X} {Y} {I} f i≈j∘f (A , B) (I⊨A , I⊨B) = 
   (⟨Abox⟩-resp-⊨ f i≈j∘f A I⊨A , ⟨Abox⟩-resp-⊨ f i≈j∘f B I⊨B)
-⟨Abox⟩-resp-⊨ {I} f i≈j∘f (x ∼ y) x≈y = 
-  ≈-trans I (≈-sym I (i≈j∘f x)) (≈-trans I x≈y (i≈j∘f y))
-⟨Abox⟩-resp-⊨ {I} f i≈j∘f (x ∈₁ c) x∈⟦c⟧ =
-  con-≈ I c x∈⟦c⟧ (i≈j∘f x)
-⟨Abox⟩-resp-⊨ {I} f i≈j∘f ((x , y) ∈₂ r) xy∈⟦r⟧ =
-  rol-≈ I r (≈-sym I (i≈j∘f x)) xy∈⟦r⟧ (i≈j∘f y)
+⟨Abox⟩-resp-⊨ {X} {Y} {I} f i≈j∘f (x ∼ y) x≈y = 
+  ≈-trans ⌊ I ⌋ (≈-sym ⌊ I ⌋ (i≈j∘f x)) (≈-trans ⌊ I ⌋ x≈y (i≈j∘f y))
+⟨Abox⟩-resp-⊨ {X} {Y} {I} f i≈j∘f (x ∈₁ c) x∈⟦c⟧ =
+  con-≈ ⌊ I ⌋ c x∈⟦c⟧ (i≈j∘f x)
+⟨Abox⟩-resp-⊨ {X} {Y} {I} f i≈j∘f ((x , y) ∈₂ r) xy∈⟦r⟧ =
+  rol-≈ ⌊ I ⌋ r (≈-sym ⌊ I ⌋ (i≈j∘f x)) xy∈⟦r⟧ (i≈j∘f y)
 
 *-resp-⟨ABox⟩ : ∀ {X Y} (f : Y → X) I A →
   (I ⊨a ⟨ABox⟩ f A) → (f * I ⊨a A)

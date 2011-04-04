@@ -1,191 +1,237 @@
-open import Data.Product using ( ∃ ; _×_ ; _,_ )
+open import Data.Product using ( ∃ ; _×_ ; _,_ ; proj₁ ; proj₂ )
 open import Relation.Unary using ( _∈_ )
 open import Web.Semantic.DL.ABox using ( ABox ; ⟨ABox⟩ ; _,_ )
-open import Web.Semantic.DL.ABox.Interp using ( Interp ; _,_ ; _*_ )
-open import Web.Semantic.DL.ABox.Interp.Morphism using ( _≲_ ; _,_ ; _**_ ; _≋_ )
-open import Web.Semantic.DL.ABox.Model using ( _⊨a_ ; ⊨a-resp-≲ ; ⟨Abox⟩-resp-⊨ ; *-resp-⟨ABox⟩ )
-open import Web.Semantic.DL.Category.Morphism using ( _⇒_ ; _,_ ; BN ; impl )
-open import Web.Semantic.DL.Category.Object using ( Object ; _,_ ; IN ; iface )
-open import Web.Semantic.DL.Integrity using ( Unique ; Mediated ; Mediator ; Initial ; _⊕_⊨_ ; _>>_ ; _,_ )
+open import Web.Semantic.DL.ABox.Interp using 
+  ( Interp ; _,_ ; ⌊_⌋ ; ind ; _*_ )
+open import Web.Semantic.DL.ABox.Interp.Morphism using 
+  ( _≲_ ; _,_ ; _**_ ; ≲⌊_⌋ ; ≲-resp-ind ; _≋_ )
+open import Web.Semantic.DL.ABox.Model using 
+  ( _⊨a_ ; ⊨a-resp-≲ ; ⟨Abox⟩-resp-⊨ ; *-resp-⟨ABox⟩ )
+open import Web.Semantic.DL.Category.Morphism using 
+  ( _⇒_ ; _,_ ; BN ; impl ; impl✓ )
+open import Web.Semantic.DL.Category.Object using
+  ( Object ; _,_ ; IN ; iface )
+open import Web.Semantic.DL.Integrity using
+  ( Unique ; Mediated ; Mediator ; Initial ; _⊕_⊨_ ; _>>_ ; _,_ 
+  ; med-≲ ; med-≋ ; med-uniq ; init-≲ ; init-⊨ ; init-med
+  ; extension ; ext-⊨ ; ext-init )
 open import Web.Semantic.DL.KB using ( KB ; _,_ )
 open import Web.Semantic.DL.KB.Model using ( _⊨_ )
 open import Web.Semantic.DL.Signature using ( Signature )
 open import Web.Semantic.DL.TBox using ( TBox ; _,_ )
-open import Web.Semantic.DL.TBox.Interp using ( Δ ; _⊨_≈_ ; ≈-refl ; ≈-sym ; ≈-trans )
-open import Web.Semantic.DL.TBox.Interp.Morphism using ( ≲-image ; ≲-trans ; ≲-resp-≈ )
-open import Web.Semantic.Util using ( _⊕_⊕_ ; inode ; bnode ; enode ; left ; right ; merge ; _∘_ )
+open import Web.Semantic.DL.TBox.Interp using 
+  ( Δ ; _⊨_≈_ ; ≈-refl ; ≈-sym ; ≈-trans )
+open import Web.Semantic.DL.TBox.Model using ( _⊨t_ )
+open import Web.Semantic.DL.TBox.Interp.Morphism using 
+  ( ≲-image ; ≲-trans ; ≲-resp-≈ )
+open import Web.Semantic.Util using 
+  ( _⊕_⊕_ ; inode ; bnode ; enode ; left ; right ; merge ; _∘_ )
 
-module Web.Semantic.DL.Category.Composition {Σ : Signature} {S T : TBox Σ} where
+module Web.Semantic.DL.Category.Composition 
+  {Σ : Signature} {S T : TBox Σ} where
+
+infixr 5 _⟫_
 
 _⟫_ : ∀ {V W X Y Z} → ABox Σ (X ⊕ V ⊕ Y) → ABox Σ (Y ⊕ W ⊕ Z) →
   ABox Σ (X ⊕ (V ⊕ Y ⊕ W) ⊕ Z)
-F ⟫ G = (⟨ABox⟩ left F , ⟨ABox⟩ right G)
+F ⟫ G = (⟨ABox⟩ left F , ⟨ABox⟩ right G) 
 
 pipe : ∀ {V W X Y Z} →
   (J : Interp Σ (X ⊕ V ⊕ Y)) → (K : Interp Σ (Y ⊕ W ⊕ Z)) →
     (enode * J ≲ inode * K) → (Interp Σ (X ⊕ (V ⊕ Y ⊕ W) ⊕ Z))
-pipe (J , j) (K , k) (J≲K , j≲k) = (K , merge (≲-image J≲K ∘ j) k)
+pipe J K J≲K = (⌊ K ⌋ , merge (≲-image ≲⌊ J≲K ⌋ ∘ ind J) (ind K))
 
 pipe-≳ : ∀ {V W X Y Z} → (I : Interp Σ X) → 
   (J : Interp Σ (X ⊕ V ⊕ Y)) → (K : Interp Σ (Y ⊕ W ⊕ Z)) →
     (I≲J : I ≲ inode * J) → (J≲K : enode * J ≲ inode * K) → 
       (I ≲ inode * (pipe J K J≲K))
-pipe-≳ (I , i) (J , j) (K , k) (I≲J , i≲j) (J≲K , j≲k) = 
-  (≲-trans I≲J J≲K , λ x → ≲-resp-≈ J≲K (i≲j x))
+pipe-≳ I J K I≲J J≲K = 
+  (≲-trans ≲⌊ I≲J ⌋ ≲⌊ J≲K ⌋ , λ x → ≲-resp-≈ ≲⌊ J≲K ⌋ (≲-resp-ind I≲J x))
 
-pipe-⟫ : ∀ {V W X Y Z} →
-  (J : Interp Σ (X ⊕ V ⊕ Y)) → (K : Interp Σ (Y ⊕ W ⊕ Z)) →
-    (J≲K : enode * J ≲ inode * K) → 
-      ∀ F G → (J ⊨a F) → (K ⊨a G) → (pipe J K J≲K ⊨a F ⟫ G)
-pipe-⟫ (J , j) (K , k) (J≲K , j≲k) F G J⊨F K⊨G = 
-  (⟨Abox⟩-resp-⊨ left lemma₁ F K⊨F , ⟨Abox⟩-resp-⊨ right lemma₂ G K⊨G) where
+pipe-uniq : ∀ {V W X Y Z I J K} {M : Interp Σ (X ⊕ (V ⊕ Y ⊕ W) ⊕ Z)} 
+  (I≲J : I ≲ inode * J) (I≲M : I ≲ inode * M) →
+    (J≲K : enode * J ≲ inode * K) (J≲M : J ≲ left * M) →
+      (I≲M ≋ I≲J >> J≲M) →
+        (Unique I J (left * M) I≲J I≲M) → 
+          (Unique (enode * J) K (right * M) J≲K (enode ** J≲M)) → 
+            (Unique I (pipe J K J≲K) M (pipe-≳ I J K I≲J J≲K) I≲M)
+pipe-uniq {I = I} {J = J} {K = K} {M = M}
+  I≲J I≲M J≲K J≲M I≲M≋I≲J≲M J≲M-uniq K≲M-uniq 
+    L≲₁M L≲₂M I≲M≋I≲L≲₁M I≲M≋I≲L≲₂M = 
+      K≲M-uniq 
+        (≲⌊ L≲₁M ⌋ , lemmaʳ L≲₁M I≲M≋I≲L≲₁M) 
+        (≲⌊ L≲₂M ⌋ , lemmaʳ L≲₂M I≲M≋I≲L≲₂M) 
+        (J≲M-uniq J≲M 
+          ( ≲-trans ≲⌊ J≲K ⌋ ≲⌊ L≲₁M ⌋ , lemmaˡ L≲₁M I≲M≋I≲L≲₁M) 
+          I≲M≋I≲J≲M 
+          I≲M≋I≲L≲₁M ) 
+        (J≲M-uniq J≲M 
+          ( ≲-trans ≲⌊ J≲K ⌋ ≲⌊ L≲₂M ⌋ , lemmaˡ L≲₂M I≲M≋I≲L≲₂M)
+          I≲M≋I≲J≲M 
+          I≲M≋I≲L≲₂M ) where
 
-  K⊨F : (K , (≲-image J≲K ∘ j)) ⊨a F
-  K⊨F = ⊨a-resp-≲ (J≲K , λ x → ≈-refl K) F J⊨F
+  L = pipe J K J≲K
+  I≲L = pipe-≳ I J K I≲J J≲K
 
-  lemma₁ : ∀ x → (K ⊨ ≲-image J≲K (j x) ≈ merge (≲-image J≲K ∘ j) k (left x))
-  lemma₁ (inode x) = ≈-refl K
-  lemma₁ (bnode v) = ≈-refl K
-  lemma₁ (enode y) = j≲k y
+  lemmaˡ : ∀ L≲M → (I≲M ≋ I≲L >> L≲M) → ∀ x → 
+    ⌊ M ⌋ ⊨ ≲-image ≲⌊ L≲M ⌋ (≲-image ≲⌊ J≲K ⌋ (ind J x)) ≈ ind M (left x)
+  lemmaˡ L≲M I≲M≋I≲L≲M (inode x) = ≲-resp-ind L≲M (inode x)
+  lemmaˡ L≲M I≲M≋I≲L≲M (bnode v) = ≲-resp-ind L≲M (bnode (inode v))
+  lemmaˡ L≲M I≲M≋I≲L≲M (enode y) = ≈-trans ⌊ M ⌋ 
+    (≲-resp-≈ ≲⌊ L≲M ⌋ (≲-resp-ind J≲K y)) 
+    (≲-resp-ind L≲M (bnode (bnode y)))
 
-  lemma₂ : ∀ x → (K ⊨ k x ≈ merge (≲-image J≲K ∘ j) k (right x))
-  lemma₂ (inode x) = ≈-refl K
-  lemma₂ (bnode v) = ≈-refl K
-  lemma₂ (enode y) = ≈-refl K
+  lemmaʳ : ∀ L≲M → (I≲M ≋ I≲L >> L≲M) → ∀ x → 
+    ⌊ M ⌋ ⊨ ≲-image ≲⌊ L≲M ⌋ (ind K x) ≈ ind M (right x)
+  lemmaʳ L≲M I≲M≋I≲L≲M (inode y) = ≲-resp-ind L≲M (bnode (bnode y))
+  lemmaʳ L≲M I≲M≋I≲L≲M (bnode w) = ≲-resp-ind L≲M (bnode (enode w))
+  lemmaʳ L≲M I≲M≋I≲L≲M (enode z) = ≲-resp-ind L≲M (enode z)
 
-pipe-≲ : ∀ {V W X Y Z} → 
-  (J : Interp Σ (X ⊕ V ⊕ Y)) → (K : Interp Σ (Y ⊕ W ⊕ Z)) →
-    (L : Interp Σ (X ⊕ (V ⊕ Y ⊕ W) ⊕ Z)) → 
-      (J≲K : enode * J ≲ inode * K) → (J≲L : J ≲ left * L) → 
-        (K≲L : K ≲ right * L) → (enode ** J≲L ≋ J≲K >> K≲L) → 
-          (pipe J K J≲K ≲ L)
-pipe-≲ (J , j) (K , k) (L , l) (J≲K , j≲k) (J≲L , j≲l) (K≲L , k≲l) J≲L≋J≲K≲L =
-  (K≲L , lemma) where
+pipe-med : ∀ {V W X Y Z I} 
+  {J : Interp Σ (X ⊕ V ⊕ Y)} {K : Interp Σ (Y ⊕ W ⊕ Z)} F G {I≲J J≲K} →
+    (Mediator I J I≲J (S , F)) → (Mediator (enode * J) K J≲K (S , G)) → 
+      (Mediator I (pipe J K J≲K) (pipe-≳ I J K I≲J J≲K) (S , F ⟫ G))
+pipe-med {V} {W} {X} {Y} {Z} {I} {J} {K} F G {I≲J} {J≲K}
+   J-med K-med M I≲M (M⊨S , M⊨F , M⊨G) = 
+    (L≲M , I≲M≋I≲L≲M , L≲M-uniq) where
 
-  lemma : ∀ x → L ⊨ ≲-image K≲L (merge (≲-image J≲K ∘ j) k x) ≈ l x
-  lemma (inode x) = 
-    ≈-trans L (≈-sym L (J≲L≋J≲K≲L (j (inode x)))) (j≲l (inode x))
-  lemma (bnode (inode v)) = 
-    ≈-trans L (≈-sym L (J≲L≋J≲K≲L (j (bnode v)))) (j≲l (bnode v))
-  lemma (bnode (bnode y)) = k≲l (inode y)
-  lemma (bnode (enode w)) = k≲l (bnode w)
-  lemma (enode z) = k≲l (enode z)
+  L : Interp Σ (X ⊕ (V ⊕ Y ⊕ W) ⊕ Z)
+  L = pipe J K J≲K
 
-pipe-≋ : ∀ {V W X Y Z} → (I : Interp Σ X) → 
-  (J : Interp Σ (X ⊕ V ⊕ Y)) → (K : Interp Σ (Y ⊕ W ⊕ Z)) →
-    (L : Interp Σ (X ⊕ (V ⊕ Y ⊕ W) ⊕ Z)) → 
-      (I≲J : I ≲ inode * J) → (I≲L : I ≲ inode * L) → 
-        (J≲K : enode * J ≲ inode * K) → (J≲L : J ≲ left * L) → 
-          (K≲L : K ≲ right * L) →
-            (I≲L ≋ I≲J >> J≲L) → (J≲L≋J≲K≲L : enode ** J≲L ≋ J≲K >> K≲L) → 
-              (I≲L ≋ pipe-≳ I J K I≲J J≲K >> pipe-≲ J K L J≲K J≲L K≲L J≲L≋J≲K≲L)
-pipe-≋ (I , i) (J , j) (K , k) (L , l) 
-  (I≲J , i≲j) (I≲L , i≲l) (J≲K , j≲k) (J≲L , j≲l) (K≲L , k≲l)
-    I≲L≋I≲J≲L J≲L≋J≲K≲L = 
-      λ x → ≈-trans L (I≲L≋I≲J≲L x) 
-        (J≲L≋J≲K≲L (≲-image I≲J x))
+  I≲L : I ≲ inode * L
+  I≲L = pipe-≳ I J K I≲J J≲K
 
-pipe-uniq : ∀ {V W X Y Z} → (I : Interp Σ X) → 
-  (J : Interp Σ (X ⊕ V ⊕ Y)) → (K : Interp Σ (Y ⊕ W ⊕ Z)) →
-    (L : Interp Σ (X ⊕ (V ⊕ Y ⊕ W) ⊕ Z)) → 
-      (I≲J : I ≲ inode * J) → (I≲L : I ≲ inode * L) → 
-        (J≲K : enode * J ≲ inode * K) → (J≲L : J ≲ left * L) → 
-          (K≲L : K ≲ right * L) →
-            (J≲L≋J≲K≲L : enode ** J≲L ≋ J≲K >> K≲L) →
-              (Unique I J (left * L) I≲J I≲L J≲L) → 
-                (Unique (enode * J) K (right * L) J≲K (enode ** J≲L) K≲L) → 
-                  (Unique I (pipe J K J≲K) L (pipe-≳ I J K I≲J J≲K) 
-                     I≲L (pipe-≲ J K L J≲K J≲L K≲L J≲L≋J≲K≲L))
-pipe-uniq (I , i) (J , j) (K , k) (L , l) 
-  (I≲J , i≲j) (I≲L , i≲l) (J≲K , j≲k) (J≲L , j≲l) (K≲L , k≲l)
-    J≲L≋J≲K≲L J-uniq K-uniq
-      (K≲L′ , k≲l′) I≲L≋I≲K≲L′ = 
-        K-uniq (K≲L′ , lemma₂)
-          (J-uniq (≲-trans J≲K K≲L′ , lemma₁) I≲L≋I≲K≲L′) where
+  I≲J≲M-med : Mediated I J (left * M) I≲J I≲M
+  I≲J≲M-med = J-med (left * M) I≲M (M⊨S , *-resp-⟨ABox⟩ left M F M⊨F)
 
-  lemma₁ : ∀ x → L ⊨ ≲-image K≲L′ (≲-image J≲K (j x)) ≈ l (left x)
-  lemma₁ (inode x) = k≲l′ (inode x)
-  lemma₁ (bnode v) = k≲l′ (bnode (inode v))
-  lemma₁ (enode y) = ≈-trans L (≲-resp-≈ K≲L′ (j≲k y)) (k≲l′ (bnode (bnode y)))
+  J≲M : J ≲ left * M
+  J≲M = med-≲ I≲J≲M-med
 
-  lemma₂ : ∀ x → L ⊨ ≲-image K≲L′ (k x) ≈ l (right x)
-  lemma₂ (inode y) = k≲l′ (bnode (bnode y))
-  lemma₂ (bnode w) = k≲l′ (bnode (enode w))
-  lemma₂ (enode z) = k≲l′ (enode z)
+  I≲M≋I≲J≲M : I≲M ≋ I≲J >> J≲M
+  I≲M≋I≲J≲M = med-≋ I≲J≲M-med
 
-pipe-med″ : ∀ {V W X Y Z} → (I : Interp Σ X) → 
-  (J : Interp Σ (X ⊕ V ⊕ Y)) → (K : Interp Σ (Y ⊕ W ⊕ Z)) →
-    (I≲J : I ≲ inode * J) → (J≲K : enode * J ≲ inode * K) → 
-      (L : Interp Σ (X ⊕ (V ⊕ Y ⊕ W) ⊕ Z)) → (I≲L : I ≲ inode * L) → 
-        (J≲L : J ≲ left * L) → (I≲L ≋ I≲J >> J≲L) →
-          (Unique I J (left * L) I≲J I≲L J≲L) → 
-            Mediated (enode * J) K (right * L) J≲K (enode ** J≲L) → 
-              Mediated I (pipe J K J≲K) L (pipe-≳ I J K I≲J J≲K) I≲L
-pipe-med″ I J K I≲J J≲K L I≲L J≲L I≲L≋I≲J≲L J≲L-uniq
-  (K≲L , J≲L≋J≲K≲L , K≲L-uniq) = 
-    ( pipe-≲ J K L J≲K J≲L K≲L J≲L≋J≲K≲L 
-    , pipe-≋ I J K L I≲J I≲L J≲K J≲L K≲L I≲L≋I≲J≲L J≲L≋J≲K≲L
-    , pipe-uniq I J K L I≲J I≲L J≲K J≲L K≲L J≲L≋J≲K≲L J≲L-uniq K≲L-uniq)
+  J≲M-uniq : Unique I J (left * M) I≲J I≲M
+  J≲M-uniq = med-uniq I≲J≲M-med
 
-pipe-med′ : ∀ {V W X Y Z} → (I : Interp Σ X) → 
-  (J : Interp Σ (X ⊕ V ⊕ Y)) → (K : Interp Σ (Y ⊕ W ⊕ Z)) →
-    (I≲J : I ≲ inode * J) → (J≲K : enode * J ≲ inode * K) → 
-      (L : Interp Σ (X ⊕ (V ⊕ Y ⊕ W) ⊕ Z)) → (I≲L : I ≲ inode * L) → 
-        (G : ABox Σ (Y ⊕ W ⊕ Z)) → (right * L ⊨ S , G) → 
-          (Mediator (enode * J) K J≲K (S , G)) → 
-            Mediated I J (left * L) I≲J I≲L →
-              Mediated I (pipe J K J≲K) L (pipe-≳ I J K I≲J J≲K) I≲L
-pipe-med′ I J K I≲J J≲K (L , l) I≲L G L⊨S,G K-med 
-  (J≲L , I≲L≋I≲J≲L , J≲L-uniq) = 
-    pipe-med″ I J K I≲J J≲K (L , l) I≲L J≲L I≲L≋I≲J≲L J≲L-uniq 
-      (K-med (L , l ∘ right) (enode ** J≲L) L⊨S,G)
+  J≲K≲M-med : Mediated (enode * J) K (right * M) J≲K (enode ** J≲M)
+  J≲K≲M-med = K-med (right * M) (enode ** J≲M) 
+    (M⊨S , *-resp-⟨ABox⟩ right M G M⊨G)
 
-pipe-med : ∀ {V W X Y Z} → (I : Interp Σ X) → 
-  (J : Interp Σ (X ⊕ V ⊕ Y)) → (K : Interp Σ (Y ⊕ W ⊕ Z)) →
-    (I≲J : I ≲ inode * J) → (J≲K : enode * J ≲ inode * K) → 
-      (F : ABox Σ (X ⊕ V ⊕ Y)) → (G : ABox Σ (Y ⊕ W ⊕ Z)) → 
-        (Mediator I J I≲J (S , F)) → (Mediator (enode * J) K J≲K (S , G)) → 
-          (Mediator I (pipe J K J≲K) (pipe-≳ I J K I≲J J≲K) (S , F ⟫ G))
-pipe-med I J K I≲J J≲K F G J-med K-med 
-  (L , l) I≲L (L⊨S , (L⊨F , L⊨G)) = 
-    pipe-med′ I J K I≲J J≲K (L , l) I≲L G 
-      (L⊨S , *-resp-⟨ABox⟩ right (L , l) G L⊨G) K-med
-      (J-med (L , l ∘ left) I≲L (L⊨S , *-resp-⟨ABox⟩ left (L , l) F L⊨F))
+  K≲M : K ≲ right * M
+  K≲M = med-≲ J≲K≲M-med
 
-pipe-ext″ : ∀ {V W X Y Z : Set} →
-  (I : Interp Σ X) → (J : Interp Σ (X ⊕ V ⊕ Y)) → (I≲J : I ≲ inode * J) →
-    (B : ABox Σ Y) → (C : ABox Σ Z) → 
-      (F : ABox Σ (X ⊕ V ⊕ Y)) → (G : ABox Σ (Y ⊕ W ⊕ Z)) → 
-        (J ⊨a F) → (Mediator I J I≲J (S , F)) →
-          ((enode * J) ⊕ (S , G) ⊨ (T , C)) →
-            (I ⊕ (S , F ⟫ G) ⊨ (T , C))
-pipe-ext″ I (J , j) I≲J B C F G J⊨F J-med
-  ((K , k) , ((J≲K , j≲k) , (K⊨S , K⊨G) , K-med) , (K⊨T , K⊨C)) = 
-    ( pipe (J , j) (K , k) (J≲K , j≲k)
-    , ( pipe-≳ I (J , j) (K , k) I≲J (J≲K , j≲k)
-      , (K⊨S , pipe-⟫ (J , j) (K , k) (J≲K , j≲k) F G J⊨F K⊨G)
-      , pipe-med I (J , j) (K , k) I≲J (J≲K , j≲k) F G J-med K-med )
-    , (K⊨T , K⊨C) )
+  J≲M≋J≲K≲M : enode ** J≲M ≋ J≲K >> K≲M
+  J≲M≋J≲K≲M = med-≋ J≲K≲M-med
 
-pipe-ext′ : ∀ {V X : Set}
-  (I : Interp Σ X) → (B C : Object S T) → 
-    (F : ABox Σ (X ⊕ V ⊕ IN B)) → (G : B ⇒ C) →
-      (I ⊕  (S , F) ⊨ T , iface B) →
-        (I ⊕ (S , F ⟫ impl G) ⊨ (T , iface C))
-pipe-ext′ I (Y , Y∈Fin , B) (Z , Z∈Fin , C) F (W , G , G✓) 
-  ((J , j) , (I≲J , (J⊨S , J⊨F) , J-med) , (J⊨T , J⊨B)) =
-    pipe-ext″ I (J , j) I≲J B C F G J⊨F J-med
-      (G✓ (J , j ∘ enode) ((J⊨S , J⊨T) , J⊨B))
+  K≲M-uniq : Unique (enode * J) K (right * M) J≲K (enode ** J≲M)
+  K≲M-uniq = med-uniq J≲K≲M-med
 
-pipe-ext : ∀ {A B C : Object S T} → (F : A ⇒ B) → (G : B ⇒ C) →
-  ∀ I → (I ⊨ (S , T) , iface A) →
-    (I ⊕ (S , impl F ⟫ impl G) ⊨ (T , iface C))
-pipe-ext (V , F , F✓) G (I , i) ((I⊨S , I⊨T) , I⊨A) = 
-  pipe-ext′ (I , i) _ _ F G (F✓ (I , i) ((I⊨S , I⊨T) , I⊨A))
+  lemma : ∀ x → ⌊ M ⌋ ⊨ ≲-image ≲⌊ K≲M ⌋ (ind L x) ≈ ind M x
+  lemma (inode x) = ≈-trans ⌊ M ⌋ 
+    (≈-sym ⌊ M ⌋ (J≲M≋J≲K≲M (ind J (inode x)))) 
+    (≲-resp-ind J≲M (inode x))
+  lemma (bnode (inode v)) = ≈-trans ⌊ M ⌋ 
+    (≈-sym ⌊ M ⌋ (J≲M≋J≲K≲M (ind J (bnode v)))) 
+    (≲-resp-ind J≲M (bnode v))
+  lemma (bnode (bnode y)) = ≲-resp-ind K≲M (inode y)
+  lemma (bnode (enode w)) = ≲-resp-ind K≲M (bnode w)
+  lemma (enode z) = ≲-resp-ind K≲M (enode z)
+
+  L≲M : L ≲ M
+  L≲M = (≲⌊ K≲M ⌋ , lemma)
+
+  I≲M≋I≲L≲M : I≲M ≋ I≲L >> L≲M
+  I≲M≋I≲L≲M x = ≈-trans ⌊ M ⌋ (I≲M≋I≲J≲M x) (J≲M≋J≲K≲M (≲-image ≲⌊ I≲J ⌋ x))
+ 
+  L≲M-uniq : Unique I L M I≲L I≲M
+  L≲M-uniq = pipe-uniq I≲J I≲M J≲K J≲M I≲M≋I≲J≲M J≲M-uniq K≲M-uniq
+
+pipe-init : ∀ {V W X Y Z I} 
+  {J : Interp Σ (X ⊕ V ⊕ Y)} {K : Interp Σ (Y ⊕ W ⊕ Z)} {F G} →
+    (J-init : J ∈ Initial I (S , F)) →
+      (K-init : K ∈ Initial (enode * J) (S , G)) →
+        (pipe J K (init-≲ K-init) ∈ Initial I (S , F ⟫ G))
+pipe-init {V} {W} {X} {Y} {Z} {I} {J} {K} {F} {G} J-init K-init = 
+  ( I≲L , (L⊨S , (L⊨F , L⊨G)) , L-med) where
+
+   L : Interp Σ (X ⊕ (V ⊕ Y ⊕ W) ⊕ Z)
+   L = pipe J K (init-≲ K-init)
+
+   I≲L : I ≲ inode * L
+   I≲L = pipe-≳ I J K (init-≲ J-init) (init-≲ K-init)
+
+   lemma₁ : ∀ x → ⌊ L ⌋ ⊨ ≲-image ≲⌊ init-≲ K-init ⌋ (ind J x) ≈ ind L (left x)
+   lemma₁ (inode x) = ≈-refl ⌊ K ⌋
+   lemma₁ (bnode v) = ≈-refl ⌊ K ⌋
+   lemma₁ (enode y) = ≲-resp-ind (init-≲ K-init) y
+
+   J≲L : J ≲ left * L
+   J≲L = (≲⌊ init-≲ K-init ⌋ , lemma₁)
+
+   L⊨S : ⌊ L ⌋ ⊨t S
+   L⊨S = proj₁ (init-⊨ K-init)
+
+   L⊨F : L  ⊨a ⟨ABox⟩ left F
+   L⊨F = ⟨Abox⟩-resp-⊨ left (λ x → ≈-refl ⌊ K ⌋) F 
+     (⊨a-resp-≲ J≲L F (proj₂ (init-⊨ J-init)))
+
+   lemma₂ : ∀ x → ⌊ L ⌋ ⊨ ind K x ≈ ind L (right x)
+   lemma₂ (inode x) = ≈-refl ⌊ K ⌋
+   lemma₂ (bnode v) = ≈-refl ⌊ K ⌋
+   lemma₂ (enode y) = ≈-refl ⌊ K ⌋
+
+   L⊨G : L ⊨a ⟨ABox⟩ right G
+   L⊨G = ⟨Abox⟩-resp-⊨ right lemma₂ G (proj₂ (init-⊨ K-init))
+
+   L-med : Mediator I L I≲L (S , F ⟫ G)
+   L-med = pipe-med F G (init-med J-init) (init-med K-init)
+
+compose-⊨ : ∀ {V W X Y Z} A B C 
+  (F : ABox Σ (X ⊕ V ⊕ Y)) (G : ABox Σ (Y ⊕ W ⊕ Z)) →
+    (∀ I → (I ⊨ (S , T) , A) → (I ⊕ S , F ⊨ T , B)) →
+      (∀ J → (J ⊨ (S , T) , B) → (J ⊕ S , G ⊨ T , C)) →
+        (∀ I → (I ⊨ (S , T) , A) → (I ⊕ S , F ⟫ G ⊨ T , C))
+compose-⊨ {V} {W} {X} {Y} {Z} A B C F G F✓ G✓ I (I⊨ST , I⊨A) = 
+  (pipe J K J≲K , pipe-init J-init K-init , K⊨TC) where
+
+  I⊕SF⊨TB : I ⊕ S , F ⊨ T , B
+  I⊕SF⊨TB = F✓ I (I⊨ST , I⊨A)
+  
+  J : Interp Σ (X ⊕ V ⊕ Y)
+  J = extension I⊕SF⊨TB
+
+  J⊨T : ⌊ J ⌋ ⊨t T
+  J⊨T = proj₁ (ext-⊨ I⊕SF⊨TB)
+
+  J⊨B : enode * J ⊨a B
+  J⊨B = proj₂ (ext-⊨ I⊕SF⊨TB)
+
+  J-init : J ∈ Initial I (S , F)
+  J-init = ext-init I⊕SF⊨TB
+
+  J⊨S : ⌊ J ⌋ ⊨t S
+  J⊨S = proj₁ (init-⊨ J-init)
+
+  J⊨F : J ⊨a F
+  J⊨F = proj₂ (init-⊨ J-init)
+
+  J⊕SG⊨TC : enode * J ⊕ S , G ⊨ T , C
+  J⊕SG⊨TC = G✓ (enode * J) ((J⊨S , J⊨T) , J⊨B)
+
+  K : Interp Σ (Y ⊕ W ⊕ Z)
+  K = extension J⊕SG⊨TC
+
+  K⊨TC : enode * K ⊨ (T , C)
+  K⊨TC = ext-⊨ J⊕SG⊨TC
+
+  K-init : K ∈ Initial (enode * J) (S , G)
+  K-init = ext-init J⊕SG⊨TC
+
+  J≲K : enode * J ≲ inode * K
+  J≲K = init-≲ K-init
 
 compose : ∀ {A B C : Object S T} → (A ⇒ B) → (B ⇒ C) → (A ⇒ C)
-compose {A} {B} F G = 
-  ( (BN F ⊕ IN B ⊕ BN G)
-  , (impl F ⟫ impl G)
-  , (pipe-ext F G) )
-
+compose {A} {B} {C} F G = 
+  ( BN F ⊕ IN B ⊕ BN G
+  , impl F ⟫ impl G 
+  , compose-⊨ (iface A) (iface B) (iface C) (impl F) (impl G) (impl✓ F) (impl✓ G) )
