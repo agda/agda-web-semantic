@@ -6,7 +6,7 @@ open import Web.Semantic.DL.ABox.Interp using ( Interp ; ⌊_⌋ ; _*_ )
 open import Web.Semantic.DL.ABox.Interp.Morphism using ( _≲_ ; ≲-refl )
 open import Web.Semantic.DL.KB using ( _,_ )
 open import Web.Semantic.DL.KB.Model using ( _⊨_ )
-open import Web.Semantic.DL.Integrity using ( Initial ; _⊕_⊨_ ; extension ; ext-init ; ext-⊨ ; init-≲ ; init-⊨ ; init-med ; med-≲ )
+open import Web.Semantic.DL.Integrity using ( Initial ; _⊕_⊨_ ; extension ; ext-init ; ext-⊨ ; ext✓ ; init-≲ ; init-⊨ ; init-med ; med-≲ )
 open import Web.Semantic.DL.Signature using ( Signature )
 open import Web.Semantic.DL.TBox using ( TBox ; _,_ )
 open import Web.Semantic.DL.TBox.Model using ( _⊨t_ )
@@ -55,6 +55,10 @@ apply-≲ F I ((I⊨S , I⊨T) , I⊨A) I⊨F =
     I 
     (≲-refl (inode * I)) 
     (I⊨S , I⊨F))
+
+apply✓ : ∀ {A B} (F : A ⇒ B) I I⊨STA →
+  (enode * apply F I I⊨STA ⊨ (S , T) , iface B)
+apply✓ F I I⊨STA = ext✓ (impl✓ F I I⊨STA)
 
 -- Morphisms F and G are equivalent whenever
 -- in any interpretation I ⊨ S,T

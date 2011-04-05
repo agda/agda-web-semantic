@@ -105,6 +105,14 @@ data _⊨b_ {V W X Y} (I : Interp Σ (X ⊕ V ⊕ Y))
   (A : ABox Σ (X ⊕ W ⊕ Y)) : Set where
     _,_ : ∀ f → (bnodes I f ⊨a A) → (I ⊨b A)
 
+inb : ∀ {V W X Y} {I : Interp Σ (X ⊕ V ⊕ Y)} {A : ABox Σ (X ⊕ W ⊕ Y)} → 
+  (I ⊨b A) → W → Δ ⌊ I ⌋
+inb (f , I⊨A) = f
+
+⊨b-impl-⊨a : ∀ {V W X Y} {I : Interp Σ (X ⊕ V ⊕ Y)} {A : ABox Σ (X ⊕ W ⊕ Y)} → 
+  (I⊨A : I ⊨b A) → (bnodes I (inb I⊨A) ⊨a A)
+⊨b-impl-⊨a (f , I⊨A) = I⊨A
+
 ⊨b-resp-≲ : ∀ {V W X Y} {I J : Interp Σ (X ⊕ V ⊕ Y)} → (I ≲ J) 
   → ∀ (A : ABox Σ (X ⊕ W ⊕ Y)) → (I ⊨b A) → (J ⊨b A)
 ⊨b-resp-≲ I≲J A (f , I⊨A) = 

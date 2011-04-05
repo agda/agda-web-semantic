@@ -1,10 +1,12 @@
-open import Data.Product using ( ∃ ; _×_ ; _,_ )
+open import Data.Product using ( ∃ ; _×_ ; _,_ ; proj₁ ; proj₂ )
 open import Relation.Unary using ( _∈_ )
+open import Web.Semantic.DL.ABox using ( ABox )
 open import Web.Semantic.DL.ABox.Interp using ( Interp ; _*_ )
 open import Web.Semantic.DL.ABox.Interp.Morphism using ( _≲_ ; ≲-trans ; _**_ ; _≋_ )
-open import Web.Semantic.DL.KB using ( KB ; tbox )
+open import Web.Semantic.DL.KB using ( KB ; _,_ ; tbox )
 open import Web.Semantic.DL.KB.Model using ( _⊨_ )
 open import Web.Semantic.DL.Signature using ( Signature )
+open import Web.Semantic.DL.TBox using ( _,_ )
 open import Web.Semantic.Util using ( _⊕_⊕_ ; inode ; enode )
 
 module Web.Semantic.DL.Integrity {Σ : Signature} {X V Y : Set} where
@@ -90,3 +92,11 @@ ext-init (J , J-init , J⊨KB₂) = J-init
 ext-⊨ : ∀ {I} {KB₁ : KB Σ (X ⊕ V ⊕ Y)} {KB₂} → 
   (I⊕KB₁⊨KB₂ : I ⊕ KB₁ ⊨ KB₂) → (enode * (extension I⊕KB₁⊨KB₂) ⊨ KB₂)
 ext-⊨ (J , J-init , J⊨KB₂) = J⊨KB₂
+
+ext✓ : ∀ {I S T} {F : ABox Σ (X ⊕ V ⊕ Y)} {B} →
+  (I⊕SF⊨TB : I ⊕ S , F ⊨ T , B) →
+    (enode * (extension I⊕SF⊨TB) ⊨ (S , T) , B)
+ext✓ I⊕SF⊨TB = 
+  ( ( proj₁ (init-⊨ (ext-init I⊕SF⊨TB)) 
+    , proj₁ (ext-⊨ I⊕SF⊨TB) ) 
+  , proj₂ (ext-⊨ I⊕SF⊨TB) )
