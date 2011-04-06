@@ -20,7 +20,7 @@ id : ∀ {X : Set} → X → X
 id x = x
 
 _∘_ : ∀ {X Y Z : Set} → (Y → Z) → (X → Y) → (X → Z)
-(f ∘ g) x = f (g x)
+(f ∘ g) = λ x → f (g x)
 
 Setoid : Set₁
 Setoid = Relation.Binary.Setoid zero zero

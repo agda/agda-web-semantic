@@ -32,7 +32,7 @@ open import Web.Semantic.Util using
 
 module Web.Semantic.DL.Category.Composition {Σ : Signature} where
 
-infixr 5 _⟫_
+infixr 5 _⟫_ _∙_
 
 _⟫_ : ∀ {V W X Y Z} → ABox Σ (X ⊕ V ⊕ Y) → ABox Σ (Y ⊕ W ⊕ Z) →
   ABox Σ (X ⊕ (V ⊕ Y ⊕ W) ⊕ Z)
@@ -305,8 +305,8 @@ compose-⊨ {S} {T} {V} {W} {X} {Y} {Z} A B C F G F✓ G✓ (I , i) I⊨STA =
   J≲K : enode * J ≲ inode * K
   J≲K = init-≲ K-init
 
-compose : ∀ {S T} {A B C : Object S T} → (A ⇒ B) → (B ⇒ C) → (A ⇒ C)
-compose {S} {T} {A} {B} {C} F G = 
+_∙_ : ∀ {S T} {A B C : Object S T} → (A ⇒ B) → (B ⇒ C) → (A ⇒ C)
+_∙_ {S} {T} {A} {B} {C} F G = 
   ( BN F ⊕ IN B ⊕ BN G
   , impl F ⟫ impl G 
   , compose-⊨ (iface A) (iface B) (iface C) (impl F) (impl G) (impl✓ F) (impl✓ G) )
