@@ -1,7 +1,6 @@
 open import Data.Product using ( ∃ ; _,_ )
 open import Web.Semantic.DL.TBox.Interp using ( Δ ) renaming ( Interp to Interp′ )
 open import Web.Semantic.DL.Signature using ( Signature )
-open import Web.Semantic.Util using  ( _∘_ )
 
 module Web.Semantic.DL.ABox.Interp where
 
@@ -18,4 +17,4 @@ ind : ∀ {Σ X} → (I : Interp Σ X) → X → Δ ⌊ I ⌋
 ind (I , i) = i
 
 _*_ : ∀ {Σ X Y} → (Y → X) → Interp Σ X → Interp Σ Y
-f * I = (⌊ I ⌋ , ind I ∘ f)
+f * I = (⌊ I ⌋ , λ x → ind I (f x))

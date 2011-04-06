@@ -49,7 +49,7 @@ ExclMiddle₁ = ∀ (X : Set₁) → Dec X
 -- ⊤ and ⊥ are used for concepts, and T is used to range over T-Boxes.
 
 open Data.Bool public using () renaming ( T to □ )
-open Data.Empty public using () renaming ( ⊥ to False )
+open Data.Empty public using () renaming ( ⊥ to False ; ⊥-elim to elim )
 open Data.Unit public using ( tt ) renaming ( ⊤ to True )
 
 □-proj₁ : ∀ {b c} → □(b ∧ c) → □ b

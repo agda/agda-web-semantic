@@ -42,7 +42,7 @@ data _≲_ {X} (I J : Interp Σ X) : Set where
   (≲′-trans ≲⌊ I≲J ⌋ ≲⌊ J≲K ⌋ , λ x → ≈-trans ⌊ K ⌋ (≲-resp-≈ ≲⌊ J≲K ⌋ (≲-resp-ind I≲J x)) (≲-resp-ind J≲K x))
 
 _**_ : ∀ {X Y I J} (f : Y → X) → (I ≲ J) → (f * I ≲ f * J)
-_**_ f I≲J = (≲⌊ I≲J ⌋ , λ x → ≲-resp-ind I≲J (f x))
+f ** I≲J = (≲⌊ I≲J ⌋ , λ x → ≲-resp-ind I≲J (f x))
 
 _≋_ : ∀ {X} {I J : Interp Σ X} → (I ≲ J) → (I ≲ J) → Set
 _≋_ {X} {I} {J} I≲₁J I≲₂J = ∀ x → (⌊ J ⌋ ⊨ ≲-image ≲⌊ I≲₁J ⌋ x ≈ ≲-image ≲⌊ I≲₂J ⌋ x)
