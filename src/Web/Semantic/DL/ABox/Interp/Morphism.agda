@@ -64,10 +64,10 @@ f ** I≲J = (≲⌊ I≲J ⌋ , λ x → ≲-resp-ind I≲J (f x))
 _≋_ : ∀ {X} {I J : Interp Σ X} → (I ≲ J) → (I ≲ J) → Set
 _≋_ {X} {I} {J} I≲₁J I≲₂J = ∀ x → (⌊ J ⌋ ⊨ ≲-image ≲⌊ I≲₁J ⌋ x ≈ ≲-image ≲⌊ I≲₂J ⌋ x)
 
-data _≃_ {X} : (I J : Interp Σ X) → Set₁ where
-  _,_ : ∀ {I J i j} → (I≃J : I ≃′ J) → 
-    (∀ x → (J ⊨ ≃-image I≃J (i x) ≈ j x)) →
-      ((I , i) ≃ (J , j))
+data _≃_ {X} (I J : Interp Σ X) : Set₁ where
+  _,_ : (I≃J : ⌊ I ⌋ ≃′ ⌊ J ⌋) → 
+    (∀ x → (⌊ J ⌋ ⊨ ≃-image I≃J (ind I x) ≈ ind J x)) →
+      (I  ≃ J)
 
 ≃⌊_⌋ : ∀ {X} {I J : Interp Σ X} → (I ≃ J) → (⌊ I ⌋ ≃′ ⌊ J ⌋)
 ≃⌊_⌋ (I≃J , i≃j) = I≃J

@@ -21,6 +21,8 @@ import Web.Semantic.DL.FOL
 import Web.Semantic.DL.FOL.Model
 import Web.Semantic.DL.Integrity
 import Web.Semantic.DL.Integrity.Closed
+import Web.Semantic.DL.Integrity.Closed.Alternate
+import Web.Semantic.DL.Integrity.Closed.Properties
 import Web.Semantic.DL.KB
 import Web.Semantic.DL.KB.Model
 import Web.Semantic.DL.KB.Skolemization

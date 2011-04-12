@@ -2,7 +2,7 @@ open import Data.Product using ( _×_ ; _,_ )
 open import Relation.Binary.PropositionalEquality using ( refl )
 open import Relation.Unary using ( _∈_ )
 open import Web.Semantic.DL.ABox using ( ABox ; ⟨ABox⟩ )
-open import Web.Semantic.DL.ABox.Interp using ( Interp ; _,_ ; ⌊_⌋ ; ind ; _*_ ; emp )
+open import Web.Semantic.DL.ABox.Interp using ( Interp ; Surjective ; _,_ ; ⌊_⌋ ; ind ; _*_ ; emp )
 open import Web.Semantic.DL.ABox.Interp.Morphism using ( _≲_ ; _,_ ; ≲⌊_⌋ ; ≲-resp-ind ; _≋_ ; _**_ )
 open import Web.Semantic.DL.ABox.Model using ( _⊨a_ ; ⟨Abox⟩-resp-⊨ ; *-resp-⟨ABox⟩ ; ⊨a-resp-≡ )
 open import Web.Semantic.DL.Integrity using ( _⊕_⊨_ ; Initial ; Mediator ; Mediated ; _,_ )
@@ -15,6 +15,7 @@ open import Web.Semantic.Util using ( False ; _∘_ ; _⊕_⊕_ ; bnode ; inode 
 
 module Web.Semantic.DL.Integrity.Closed {Σ : Signature} {X : Set} where
 
+infix 2 _⊨₀_ sur_⊨₀_
 infixr 4 _,_
 
 -- A closed-world variant on integrity constraints.
@@ -27,6 +28,11 @@ data Initial₀ KB (I : Interp Σ X) : Set₁ where
 
 data _⊨₀_ (KB₁ KB₂ : KB Σ X) : Set₁ where
   _,_ : ∀ I → ((I ∈ Initial₀ KB₁) × (I ⊨ KB₂)) → (KB₁ ⊨₀ KB₂)
+
+-- Surjective variant
+
+data sur_⊨₀_ (KB₁ KB₂ : KB Σ X) : Set₁ where
+  _,_ : ∀ I → ((I ∈ Surjective) × (I ∈ Initial₀ KB₁) × (I ⊨ KB₂)) → (sur KB₁ ⊨₀ KB₂)
 
 -- Closed-world ICs are given by specializing the open-world case
 -- to the empty imported interpretion.

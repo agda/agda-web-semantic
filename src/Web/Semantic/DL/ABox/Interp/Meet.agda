@@ -3,7 +3,7 @@ open import Relation.Nullary using ( yes ; no )
 open import Relation.Unary using ( _∈_ )
 open import Web.Semantic.DL.ABox.Interp using 
   ( Interp ; _,_ ; ⌊_⌋ ; ind ; ind² ; Surjective ; surj ; ind⁻¹ ; surj✓ )
-open import Web.Semantic.DL.ABox.Interp.Morphism using ( _≲_ ; _,_ ; ≲⌊_⌋ ; ≲-resp-ind )
+open import Web.Semantic.DL.ABox.Interp.Morphism using ( _≲_ ; _,_ ; ≲⌊_⌋ ; ≲-resp-ind ; _≋_ )
 open import Web.Semantic.DL.Signature using ( Signature )
 open import Web.Semantic.DL.TBox.Interp using ( interp ; _⊨_≈_ ; ≈-refl ; ≈-sym ; ≈-trans ; con ; rol ; con-≈ ; rol-≈ )
 open import Web.Semantic.DL.TBox.Interp.Morphism using ( morph ; ≲-image ; ≲-resp-≈ ; ≲-resp-con ; ≲-resp-rol )
@@ -71,3 +71,8 @@ meet-glb Is J J∈Surj J≲Is =
   lemma I I∈Is x = 
     ≈-trans ⌊ I ⌋ (≲-resp-≈ ≲⌊ J≲Is I I∈Is ⌋ (surj✓ J∈Surj x)) 
       (≲-resp-ind (J≲Is I I∈Is) (ind⁻¹ J∈Surj x))
+
+-- Mediating morphisms for meets are unique
+
+meet-uniq : ∀ Is (I : Interp Σ X) → (I ∈ Is) → (J≲₁I J≲₂I : meet Is ≲ I) → (J≲₁I ≋ J≲₂I)
+meet-uniq Is I I∈Is J≲₁I J≲₂I x = ≈-trans ⌊ I ⌋ (≲-resp-ind J≲₁I x) (≈-sym ⌊ I ⌋ (≲-resp-ind J≲₂I x))

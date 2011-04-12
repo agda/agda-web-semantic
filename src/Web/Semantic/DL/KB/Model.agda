@@ -13,6 +13,9 @@ infixr 2 _⊨_
 _⊨_ : Interp Σ X → KB Σ X → Set
 I ⊨ K = (⌊ I ⌋ ⊨t tbox K) × (I ⊨a abox K)
 
+Interps : KB Σ X → Interp Σ X → Set
+Interps K I = I ⊨ K
+
 ⊨-resp-≃ : ∀ {I J} → (I ≃ J) → ∀ K → (I ⊨ K) → (J ⊨ K)
 ⊨-resp-≃ I≃J K (I⊨T , I⊨A) =
   (⊨t-resp-≃ ≃⌊ I≃J ⌋ (tbox K) I⊨T , ⊨a-resp-≲ (≃-impl-≲ I≃J) (abox K) I⊨A)
