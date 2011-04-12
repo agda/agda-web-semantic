@@ -1,12 +1,13 @@
 open import Data.Product using ( ∃ ; _×_ ; _,_ )
 open import Data.Sum using ( inj₁ ; inj₂ )
+open import Relation.Nullary using ( Dec ; yes ; no )
 open import Relation.Unary using ( _∈_ ; _∉_ ; ∅ ; U ; _∪_ ; _∩_ ; ∁ )
 open import Web.Semantic.DL.Concept using ( Concept ; ⟨_⟩ ; ¬⟨_⟩ ; ⊤ ; ⊥ ; _⊓_ ; _⊔_ ; ∀[_]_ ; ∃⟨_⟩_ ; ≤1 ; >1 ; neg )
 open import Web.Semantic.DL.Role.Model using ( _⟦_⟧₂ ; ⟦⟧₂-resp-≈ ; ⟦⟧₂-resp-≲ ; ⟦⟧₂-galois )
 open import Web.Semantic.DL.Signature using ( Signature )
 open import Web.Semantic.DL.TBox.Interp using ( Interp ; Δ ; _⊨_≈_ ; _⊨_≉_ ; con ; con-≈ ; ≈-refl ; ≈-sym ; ≈-trans )
 open import Web.Semantic.DL.TBox.Interp.Morphism using ( _≲_ ; _≃_ ; ≲-resp-con ; ≲-resp-≈ ; ≃-impl-≲ ; ≃-impl-≳ ; ≃-iso ; ≃-iso⁻¹ ; ≃-image ; ≃-image⁻¹ ; ≃-refl-≈ ; ≃-sym )
-open import Web.Semantic.Util using ( Subset ; tt ; _∘_ )
+open import Web.Semantic.Util using ( Subset ; tt ; _∘_ ; ExclMiddle ; elim )
 
 module Web.Semantic.DL.Concept.Model {Σ : Signature} where
 
@@ -99,3 +100,49 @@ neg-sound I (∀[ R ] C) (y , xy∈⟦R⟧ , y∈⟦¬C⟧) x∈⟦∀RC⟧ = ne
 neg-sound I (∃⟨ R ⟩ C) x∈⟦∀R¬C⟧ (y , xy∈⟦R⟧ , y∈⟦C⟧) = neg-sound I C (x∈⟦∀R¬C⟧ y xy∈⟦R⟧) y∈⟦C⟧
 neg-sound I (≤1 R) (y , z , xy∈⟦R⟧ , xz∈⟦R⟧ , y≉z) x∈⟦≤1R⟧ = y≉z (x∈⟦≤1R⟧ y z xy∈⟦R⟧ xz∈⟦R⟧)
 neg-sound I (>1 R) x∈⟦≤1R⟧ (y , z , xy∈⟦R⟧ , xz∈⟦R⟧ , y≉z) = y≉z (x∈⟦≤1R⟧ y z xy∈⟦R⟧ xz∈⟦R⟧)
+
+neg-complete : ExclMiddle → ∀ I {x} C → (x ∉ I ⟦ C ⟧₁) → (x ∈ I ⟦ neg C ⟧₁)
+neg-complete excl-middle I ⟨ c ⟩ x∉⟦c⟧ = x∉⟦c⟧
+neg-complete excl-middle I {x} ¬⟨ c ⟩ ¬x∉⟦c⟧ with excl-middle (x ∈ con I c)
+neg-complete excl-middle I ¬⟨ c ⟩ ¬x∉⟦c⟧ | yes x∈⟦c⟧ = x∈⟦c⟧
+neg-complete excl-middle I ¬⟨ c ⟩ ¬x∉⟦c⟧ | no  x∉⟦c⟧ = elim (¬x∉⟦c⟧ x∉⟦c⟧)
+neg-complete excl-middle I ⊤ x∉⟦⊤⟧ = x∉⟦⊤⟧ tt
+neg-complete excl-middle I ⊥ x∉⟦⊥⟧ = tt
+neg-complete excl-middle I {x} (C ⊓ D) x∉⟦C⊓D⟧ with excl-middle (x ∈ I ⟦ C ⟧₁)
+neg-complete excl-middle I (C ⊓ D) x∉⟦C⊓D⟧ | yes x∈⟦C⟧ =
+  inj₂ (neg-complete excl-middle I D (λ x∈⟦D⟧ → x∉⟦C⊓D⟧ (x∈⟦C⟧ , x∈⟦D⟧)))
+neg-complete excl-middle I (C ⊓ D) x∉⟦C⊓D⟧ | no x∉⟦C⟧ = 
+  inj₁ (neg-complete excl-middle I C x∉⟦C⟧)
+neg-complete excl-middle I (C ⊔ D) x∉⟦C⊔D⟧ = 
+  ( neg-complete excl-middle I C (x∉⟦C⊔D⟧ ∘ inj₁)
+  , neg-complete excl-middle I D (x∉⟦C⊔D⟧ ∘ inj₂))
+neg-complete excl-middle I {x} (∀[ R ] C) x∉⟦∀RC⟧ 
+  with excl-middle (∃ λ y → ((x , y) ∈ I ⟦ R ⟧₂) × (y ∉ I ⟦ C ⟧₁))
+neg-complete excl-middle I {x} (∀[ R ] C) x∉⟦∀RC⟧ | yes (y , xy∈⟦R⟧ , y∉⟦C⟧) =
+  (y , xy∈⟦R⟧ , neg-complete excl-middle I C y∉⟦C⟧)
+neg-complete excl-middle I {x} (∀[ R ] C) x∉⟦∀RC⟧ | no ∄xy∈⟦R⟧∙y∉⟦C⟧ =
+  elim (x∉⟦∀RC⟧ lemma) where
+  lemma : x ∈ I ⟦ ∀[ R ] C ⟧₁
+  lemma y xy∈⟦R⟧ with excl-middle (y ∈ I ⟦ C ⟧₁)
+  lemma y xy∈⟦R⟧ | yes y∈⟦C⟧ = y∈⟦C⟧
+  lemma y xy∈⟦R⟧ | no  y∉⟦C⟧ = elim (∄xy∈⟦R⟧∙y∉⟦C⟧ (y , xy∈⟦R⟧ , y∉⟦C⟧))
+neg-complete excl-middle I (∃⟨ R ⟩ C) x∉⟦∃RC⟧ = 
+  λ y xy∈⟦R⟧ → neg-complete excl-middle I C 
+    (λ y∈⟦C⟧ → x∉⟦∃RC⟧ (y , xy∈⟦R⟧ , y∈⟦C⟧))
+neg-complete excl-middle I {x} (≤1 R) x∉⟦≤1R⟧ = lemma where
+  lemma : x ∈ I ⟦ >1 R ⟧₁
+  lemma with excl-middle (x ∈ I ⟦ >1 R ⟧₁)
+  lemma | yes x∈⟦>1R⟧ = x∈⟦>1R⟧
+  lemma | no x∉⟦>1R⟧ = elim (x∉⟦≤1R⟧ lemma′) where
+    lemma′ : x ∈ I ⟦ ≤1 R ⟧₁
+    lemma′ y z xy∈⟦R⟧ xz∈⟦R⟧ with excl-middle (I ⊨ y ≈ z)
+    lemma′ y z xy∈⟦R⟧ xz∈⟦R⟧ | yes y≈z = y≈z
+    lemma′ y z xy∈⟦R⟧ xz∈⟦R⟧ | no y≉z =
+      elim (x∉⟦>1R⟧ (y , z , xy∈⟦R⟧ , xz∈⟦R⟧ , y≉z))
+neg-complete excl-middle I {x} (>1 R) x∉⟦>1R⟧ = lemma where
+  lemma : x ∈ I ⟦ ≤1 R ⟧₁
+  lemma y z xy∈⟦R⟧ xz∈⟦R⟧ with excl-middle (I ⊨ y ≈ z)
+  lemma y z xy∈⟦R⟧ xz∈⟦R⟧ | yes y≈z = y≈z
+  lemma y z xy∈⟦R⟧ xz∈⟦R⟧ | no y≉z = 
+    elim (x∉⟦>1R⟧ (y , z , xy∈⟦R⟧ , xz∈⟦R⟧ , y≉z))
+

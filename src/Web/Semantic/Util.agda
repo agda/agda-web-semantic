@@ -45,6 +45,17 @@ ExclMiddle = ∀ (X : Set) → Dec X
 ExclMiddle₁ : Set₂
 ExclMiddle₁ = ∀ (X : Set₁) → Dec X
 
+smaller-excl-middle : ExclMiddle₁ → ExclMiddle
+smaller-excl-middle excl-middle₁ X = X? where
+
+  data Large : Set₁ where
+    large : X → Large
+
+  X? : Dec X
+  X? with excl-middle₁ Large
+  X? | yes (large x) = yes x
+  X? | no ¬x         = no (λ x → ¬x (large x))
+
 -- Some nameclashes between the standard library and semantic web terminology:
 -- ⊤ and ⊥ are used for concepts, and T is used to range over T-Boxes.
 
@@ -120,3 +131,7 @@ merge f g (bnode (inode v)) = f (bnode v)
 merge f g (bnode (bnode y)) = g (inode y)
 merge f g (bnode (enode w)) = g (bnode w)
 merge f g (enode z)         = g (enode z)
+
+→-dist-⊕ : ∀ {V X Y Z : Set} → ((X ⊕ V ⊕ Y) → Z) → 
+  ((X → Z) × (V → Z) × (Y → Z))
+→-dist-⊕ i = ((i ∘ inode) , (i ∘ bnode) , (i ∘ enode))

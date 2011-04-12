@@ -5,7 +5,7 @@ open import Web.Semantic.DL.ABox.Interp using
 open import Web.Semantic.DL.ABox.Interp.Morphism using 
   ( _≲_ ; _,_ ; _**_ ; ≲-refl )
 open import Web.Semantic.DL.ABox.Model using 
-  ( _⊨a_ ; ⊨a-resp-≲ ; ⊨a-impl-⊨b ; *-resp-⟨ABox⟩ 
+  ( _⊨a_ ; ⊨a-resp-≲ ; ⊨a-impl-⊨b ; *-resp-⟨ABox⟩ ; ⊨a-resp-≡³
   ; _⊨b_ ; ⊨b-resp-≲ ; ⊨b-impl-⊨a ; _,_ ; inb ; on-bnode ; bnodes )
 open import Web.Semantic.DL.Category.Object using 
   ( Object ; IN ; iface ; fin )
@@ -30,28 +30,6 @@ open import Web.Semantic.Util using
   ( id ; _∘_ ; False ; _⊕_⊕_ ; inode ; bnode ; enode ; left ; right )
 
 module Web.Semantic.DL.Category.Properties {Σ : Signature} {S T : TBox Σ} where
-
-≡-impl-≈ : ∀ {X : Set} (I : Interp′ Σ) {i j : X → Δ I} → 
-  (i ≡ j) → (∀ x → I ⊨ i x ≈ j x)
-≡-impl-≈ I refl x = ≈-refl I
-
-→-dist-⊕ : ∀ {V X Y Z : Set} → ((X ⊕ V ⊕ Y) → Z) → 
-  ((X → Z) × (V → Z) × (Y → Z))
-→-dist-⊕ i = ((i ∘ inode) , (i ∘ bnode) , (i ∘ enode))
-
-≡³-impl-≈ : ∀ {V X Y : Set} (I : Interp′ Σ) (i j : (X ⊕ V ⊕ Y) → Δ I) →
-  (→-dist-⊕ i ≡ →-dist-⊕ j) → (∀ x → I ⊨ i x ≈ j x)
-≡³-impl-≈ I i j i≡j (inode x) = ≡-impl-≈ I (cong proj₁ i≡j) x
-≡³-impl-≈ I i j i≡j (bnode v) = ≡-impl-≈ I (cong proj₁ (cong proj₂ i≡j)) v
-≡³-impl-≈ I i j i≡j (enode y) = ≡-impl-≈ I (cong proj₂ (cong proj₂ i≡j)) y
-
-≡-impl-≲ : ∀ {V X Y : Set} (I : Interp Σ (X ⊕ V ⊕ Y)) j →
-  (→-dist-⊕ (ind I) ≡ →-dist-⊕ j) → (I ≲ (⌊ I ⌋ , j))
-≡-impl-≲ (I , i) j i≡j = (≲′-refl I , ≡³-impl-≈ I i j i≡j)
-
-⊨a-resp-≡ : ∀ {V X Y : Set} (I : Interp Σ (X ⊕ V ⊕ Y)) j →
-  (→-dist-⊕ (ind I) ≡ →-dist-⊕ j) → ∀ A → (I ⊨a A) → (⌊ I ⌋ , j ⊨a A)
-⊨a-resp-≡ I j i≡j = ⊨a-resp-≲ (≡-impl-≲ I j i≡j) 
 
 ⊑-refl : ∀ {A B : Object S T} (F : A ⇒ B) → (F ⊑ F)
 ⊑-refl F I I⊨STA I⊨F = ⊨a-impl-⊨b I (impl F) I⊨F
@@ -81,7 +59,7 @@ module Web.Semantic.DL.Category.Properties {Σ : Signature} {S T : TBox Σ} wher
   K⊨H = ⊨b-impl-⊨a (G⊑H J J⊨STA J⊨G)
 
   I⊨H : bnodes I g ⊨a impl H
-  I⊨H = ⊨a-resp-≡ K (on-bnode g (ind I)) refl (impl H) K⊨H
+  I⊨H = ⊨a-resp-≡³ K (on-bnode g (ind I)) refl (impl H) K⊨H
 
 ≣-refl : ∀ {A B : Object S T} (F : A ⇒ B) → (F ≣ F)
 ≣-refl F = (⊑-refl F , ⊑-refl F)
@@ -187,7 +165,7 @@ compose-unit₁ {A} {B} F = ( idF⊑F , F⊑idF ) where
     Iˡ⊨id = identity-intro A (left * bnodes I f) (λ x → ≈-refl ⌊ I ⌋)
 
     Iʳ⊨F : right * bnodes I f ⊨a impl F
-    Iʳ⊨F = ⊨a-resp-≡ I (on-bnode f (ind I) ∘ right) refl (impl F) I⊨F
+    Iʳ⊨F = ⊨a-resp-≡³ I (on-bnode f (ind I) ∘ right) refl (impl F) I⊨F
 
     I⊨idF : bnodes I f ⊨a impl (identity A ∙ F)
     I⊨idF = compose-resp-⊨a (identity A) F (bnodes I f) Iˡ⊨id Iʳ⊨F
@@ -225,7 +203,7 @@ compose-unit₂ {A} {B} F = ( Fid⊑F , F⊑Fid ) where
     f (enode ())
 
     Iˡ⊨F : left * bnodes I f ⊨a impl F
-    Iˡ⊨F = ⊨a-resp-≡ I (on-bnode f (ind I) ∘ left) refl (impl F) I⊨F
+    Iˡ⊨F = ⊨a-resp-≡³ I (on-bnode f (ind I) ∘ left) refl (impl F) I⊨F
 
     Iʳ⊨id : right * bnodes I f ⊨a impl (identity B)
     Iʳ⊨id = identity-intro B (right * bnodes I f) (λ x → ≈-refl ⌊ I ⌋)
@@ -248,15 +226,15 @@ compose-assoc {A} {B} {C} {D} F G H = (LHS⊑RHS , RHS⊑LHS) where
     f (enode (enode w)) = ind I (bnode (enode w))
 
     I⊨F : left * bnodes I f ⊨a impl F
-    I⊨F = ⊨a-resp-≡ (left * left * I) (on-bnode f (ind I) ∘ left) refl 
+    I⊨F = ⊨a-resp-≡³ (left * left * I) (on-bnode f (ind I) ∘ left) refl 
       (impl F) (compose-left F G (left * I) (compose-left (F ∙ G) H I I⊨LHS))
 
     I⊨G : left * right * bnodes I f ⊨a impl G
-    I⊨G = ⊨a-resp-≡ (right * left * I) (on-bnode f (ind I) ∘ right ∘ left) refl
+    I⊨G = ⊨a-resp-≡³ (right * left * I) (on-bnode f (ind I) ∘ right ∘ left) refl
       (impl G) (compose-right F G (left * I) (compose-left (F ∙ G) H I I⊨LHS))
 
     I⊨H : right * right * bnodes I f ⊨a impl H
-    I⊨H = ⊨a-resp-≡ (right * I) (on-bnode f (ind I) ∘ right ∘ right) refl
+    I⊨H = ⊨a-resp-≡³ (right * I) (on-bnode f (ind I) ∘ right ∘ right) refl
       (impl H) (compose-right (F ∙ G) H I I⊨LHS)
 
     I⊨RHS : bnodes I f ⊨a impl (F ∙ (G ∙ H))
@@ -274,15 +252,15 @@ compose-assoc {A} {B} {C} {D} F G H = (LHS⊑RHS , RHS⊑LHS) where
     f (enode w) = ind I (bnode (enode (enode w)))
 
     I⊨F : left * left * bnodes I f ⊨a impl F
-    I⊨F = ⊨a-resp-≡ (left * I) (on-bnode f (ind I) ∘ left ∘ left) refl
+    I⊨F = ⊨a-resp-≡³ (left * I) (on-bnode f (ind I) ∘ left ∘ left) refl
       (impl F) (compose-left F (G ∙ H) I I⊨RHS)
 
     I⊨G : right * left * bnodes I f ⊨a impl G
-    I⊨G = ⊨a-resp-≡ (left * right * I) (on-bnode f (ind I) ∘ left ∘ right) refl
+    I⊨G = ⊨a-resp-≡³ (left * right * I) (on-bnode f (ind I) ∘ left ∘ right) refl
       (impl G) (compose-left G H (right * I) (compose-right F (G ∙ H) I I⊨RHS))
 
     I⊨H : right * bnodes I f ⊨a impl H
-    I⊨H = ⊨a-resp-≡ (right * right * I) (on-bnode f (ind I) ∘ right) refl
+    I⊨H = ⊨a-resp-≡³ (right * right * I) (on-bnode f (ind I) ∘ right) refl
       (impl H) (compose-right G H (right * I) (compose-right F (G ∙ H) I I⊨RHS))
 
     I⊨LHS : bnodes I f ⊨a impl ((F ∙ G) ∙ H)

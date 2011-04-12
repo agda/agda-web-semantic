@@ -4,6 +4,7 @@ module Web.Semantic.Everything where
 
 import Web.Semantic.DL.ABox
 import Web.Semantic.DL.ABox.Interp
+import Web.Semantic.DL.ABox.Interp.Meet
 import Web.Semantic.DL.ABox.Interp.Morphism
 import Web.Semantic.DL.ABox.Model
 import Web.Semantic.DL.ABox.Skolemization
@@ -19,6 +20,7 @@ import Web.Semantic.DL.Concept.Skolemization
 import Web.Semantic.DL.FOL
 import Web.Semantic.DL.FOL.Model
 import Web.Semantic.DL.Integrity
+import Web.Semantic.DL.Integrity.Closed
 import Web.Semantic.DL.KB
 import Web.Semantic.DL.KB.Model
 import Web.Semantic.DL.KB.Skolemization

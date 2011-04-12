@@ -1,9 +1,9 @@
 open import Data.Product using ( ∃ ; _×_ ; _,_ )
 open import Relation.Binary using ( IsEquivalence )
 open import Relation.Nullary using ( ¬_ )
-open import Relation.Unary using ( _∈_ )
+open import Relation.Unary using ( _∈_ ; ∅ )
 open import Web.Semantic.DL.Signature using ( Signature ; CN ; RN )
-open import Web.Semantic.Util using ( Setoid ; Subset ; _∘_ )
+open import Web.Semantic.Util using ( Setoid ; Subset ; _∘_ ; False )
 
 module Web.Semantic.DL.TBox.Interp where
 
@@ -49,3 +49,6 @@ rol-≈ (interp Δ _≈_ refl sym trans con rol con-≈ rol-≈) = rol-≈
 
 _⊨_≉_ : ∀ {Σ} → (I : Interp Σ) → (Δ I) → (Δ I) → Set
 I ⊨ x ≉ y = ¬(I ⊨ x ≈ y)
+
+emp : ∀ {Σ} → Interp Σ
+emp = interp False (λ ()) (λ {}) (λ {}) (λ {}) (λ c → ∅) (λ r → ∅) (λ {}) (λ {})

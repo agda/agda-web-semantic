@@ -1,14 +1,14 @@
 open import Data.Product using ( _×_ ; _,_ )
 open import Data.Sum using ( inj₁ ; inj₂ )
-open import Relation.Binary.PropositionalEquality using ( refl )
+open import Relation.Binary.PropositionalEquality using ( _≡_ ; refl )
 open import Relation.Unary using ( _∈_ )
 open import Web.Semantic.DL.ABox using ( ABox ; Assertions ; ⟨ABox⟩ ; ε ; _,_ ; _∼_ ; _∈₁_ ; _∈₂_ )
 open import Web.Semantic.DL.ABox.Interp using ( Interp ; _,_ ; ⌊_⌋ ; ind ; _*_ )
-open import Web.Semantic.DL.ABox.Interp.Morphism using ( _≲_ ; _,_ ; ≲⌊_⌋ ; ≲-resp-ind )
+open import Web.Semantic.DL.ABox.Interp.Morphism using ( _≲_ ; _,_ ; ≲⌊_⌋ ; ≲-resp-ind ; ≡³-impl-≲ )
 open import Web.Semantic.DL.Signature using ( Signature )
 open import Web.Semantic.DL.TBox.Interp using ( Δ ; _⊨_≈_ ; ≈-refl ; ≈-sym ; ≈-trans ; con ; rol ; con-≈ ; rol-≈ )
 open import Web.Semantic.DL.TBox.Interp.Morphism using ( ≲-image ; ≲-resp-≈ ; ≲-resp-con ; ≲-resp-rol ; ≲-refl )
-open import Web.Semantic.Util using ( True ; tt ; _∘_ ; _⊕_⊕_ ; inode ; bnode ; enode )
+open import Web.Semantic.Util using ( True ; tt ; _∘_ ; _⊕_⊕_ ; inode ; bnode ; enode ; →-dist-⊕ )
 
 module Web.Semantic.DL.ABox.Model {Σ : Signature} where
 
@@ -48,6 +48,14 @@ Assertions✓ I (ij ∈₂ r) refl       I⊨A         = I⊨A
 ⊨a-resp-≲ {X} {I} {J} I≲J ((x , y) ∈₂ r) I⊨xy∈r = 
   rol-≈ ⌊ J ⌋ r (≈-sym ⌊ J ⌋ (≲-resp-ind I≲J x)) 
     (≲-resp-rol ≲⌊ I≲J ⌋ I⊨xy∈r) (≲-resp-ind I≲J y)
+
+⊨a-resp-≡ : ∀ {X : Set} (I : Interp Σ X) j →
+  (ind I ≡ j) → ∀ A → (I ⊨a A) → (⌊ I ⌋ , j ⊨a A)
+⊨a-resp-≡ (I , i) .i refl A I⊨A = I⊨A
+
+⊨a-resp-≡³ : ∀ {V X Y : Set} (I : Interp Σ (X ⊕ V ⊕ Y)) j →
+  (→-dist-⊕ (ind I) ≡ →-dist-⊕ j) → ∀ A → (I ⊨a A) → (⌊ I ⌋ , j ⊨a A)
+⊨a-resp-≡³ I j i≡j = ⊨a-resp-≲ (≡³-impl-≲ I j i≡j) 
 
 ⟨Abox⟩-resp-⊨ : ∀ {X Y} {I : Interp Σ X} {j : Y → Δ ⌊ I ⌋} 
   (f : X → Y) → (∀ x → ⌊ I ⌋ ⊨ ind I x ≈ j (f x)) →
