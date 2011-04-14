@@ -29,7 +29,7 @@ open import Web.Semantic.DL.TBox.Interp.Morphism using () renaming
 open import Web.Semantic.Util using
   ( id ; _∘_ ; False ; _⊕_⊕_ ; inode ; bnode ; enode ; left ; right )
 
-module Web.Semantic.DL.Category.Properties {Σ : Signature} {S T : TBox Σ} where
+module Web.Semantic.DL.Category.IsCategory {Σ : Signature} {S T : TBox Σ} where
 
 ⊑-refl : ∀ {A B : Object S T} (F : A ⇒ B) → (F ⊑ F)
 ⊑-refl F I I⊨STA I⊨F = ⊨a-impl-⊨b I (impl F) I⊨F

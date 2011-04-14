@@ -2,13 +2,14 @@
 
 open import Data.Bool using ( Bool ; true ; false ; _∧_ )
 open import Data.Empty using ()
-open import Data.List.Any using ()
-open import Data.Sum using ( _⊎_ ; inj₁ )
+open import Data.List using ( List ; [] ; _∷_ ; _++_ ; map )
+open import Data.List.Any using ( here ; there )
+open import Data.Sum using ( _⊎_ ; inj₁ ; inj₂ )
 open import Data.Product using ( ∃ ; ∄ ; _×_ ; _,_ )
 open import Data.Unit using ()
 open import Level using ( zero )
 open import Relation.Binary using ()
-open import Relation.Binary.PropositionalEquality using ( _≡_ )
+open import Relation.Binary.PropositionalEquality using ( _≡_ ; refl )
 open import Relation.Nullary using ( Dec ; yes ; no )
 open import Relation.Unary using ( _∈_ ; _⊆_ )
 
@@ -92,6 +93,28 @@ open Data.List.Any.Membership-≡ public using () renaming ( _∈_ to _∈ˡ_ )
 Finite : Set → Set
 Finite X = ∃ λ xs → ∀ (x : X) → (x ∈ˡ xs)
 
+False∈Fin : False ∈ Finite
+False∈Fin = ([] , λ ())
+
+⊎-resp-Fin : ∀ {X Y} → (X ∈ Finite) → (Y ∈ Finite) → ((X ⊎ Y) ∈ Finite)
+⊎-resp-Fin {X} {Y} (xs , ∀x∙x∈xs) (ys , ∀y∙y∈ys) = 
+  ((map inj₁ xs ++ map inj₂ ys) , lemma) where
+
+  lemma₁ : ∀ {x : X} {xs : List X} → 
+    (x ∈ˡ xs) → (inj₁ x ∈ˡ (map inj₁ xs ++ map inj₂ ys))
+  lemma₁ (here refl) = here refl
+  lemma₁ (there x∈xs) = there (lemma₁ x∈xs)
+
+  lemma₂ : ∀ (xs : List X) {y : Y} {ys : List Y} → 
+    (y ∈ˡ ys) → (inj₂ y ∈ˡ (map inj₁ xs ++ map inj₂ ys))
+  lemma₂ [] (here refl) = here refl
+  lemma₂ [] (there y∈ys) = there (lemma₂ [] y∈ys)
+  lemma₂ (x ∷ xs) y∈ys = there (lemma₂ xs y∈ys)
+
+  lemma : ∀ x → (x ∈ˡ (map inj₁ xs ++ map inj₂ ys))
+  lemma (inj₁ x) = lemma₁ (∀x∙x∈xs x)
+  lemma (inj₂ y) = lemma₂ xs (∀y∙y∈ys y)
+
 -- A set divided, like Gaul, into three parts
 
 infix 6 _⊕_⊕_
@@ -135,3 +158,25 @@ merge f g (enode z)         = g (enode z)
 →-dist-⊕ : ∀ {V X Y Z : Set} → ((X ⊕ V ⊕ Y) → Z) → 
   ((X → Z) × (V → Z) × (Y → Z))
 →-dist-⊕ i = ((i ∘ inode) , (i ∘ bnode) , (i ∘ enode))
+
+⊕-inj₁ : ∀ {V₁ V₂ X₁ X₂ Y₁ Y₂} → (X₁ ⊕ V₁ ⊕ Y₁) →
+  ((X₁ ⊎ X₂) ⊕ (V₁ ⊎ V₂) ⊕ (Y₁ ⊎ Y₂))
+⊕-inj₁ (inode x) = inode (inj₁ x)
+⊕-inj₁ (bnode v) = bnode (inj₁ v)
+⊕-inj₁ (enode y) = enode (inj₁ y)
+
+⊕-inj₂ : ∀ {V₁ V₂ X₁ X₂ Y₁ Y₂} → (X₂ ⊕ V₂ ⊕ Y₂) →
+  ((X₁ ⊎ X₂) ⊕ (V₁ ⊎ V₂) ⊕ (Y₁ ⊎ Y₂))
+⊕-inj₂ (inode x) = inode (inj₂ x)
+⊕-inj₂ (bnode v) = bnode (inj₂ v)
+⊕-inj₂ (enode y) = enode (inj₂ y)
+shuffle : ∀ {V₁ V₂ X₁ X₂ Y₁ Y₂ Z : Set} →
+  ((X₁ ⊕ V₁ ⊕ Y₁) → Z) → ((X₂ ⊕ V₂ ⊕ Y₂) → Z) →
+    ((X₁ ⊎ X₂) ⊕ (V₁ ⊎ V₂) ⊕ (Y₁ ⊎ Y₂)) → Z
+
+shuffle j k (inode (inj₁ x)) = j (inode x)
+shuffle j k (inode (inj₂ x)) = k (inode x)
+shuffle j k (bnode (inj₁ v)) = j (bnode v)
+shuffle j k (bnode (inj₂ v)) = k (bnode v)
+shuffle j k (enode (inj₁ y)) = j (enode y)
+shuffle j k (enode (inj₂ y)) = k (enode y)

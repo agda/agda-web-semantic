@@ -5,7 +5,7 @@ import Web.Semantic.DL.Category.Object
 import Web.Semantic.DL.Category.Morphism
 import Web.Semantic.DL.Category.Identity
 import Web.Semantic.DL.Category.Composition
-import Web.Semantic.DL.Category.Properties
+import Web.Semantic.DL.Category.IsCategory
 
 module Web.Semantic.DL.Category {Σ : Signature} where
 
@@ -33,31 +33,31 @@ _≣_ = Web.Semantic.DL.Category.Morphism._≣_
 
 ≣-refl : ∀ {S T} {A B : Object S T} (F : A ⇒ B) →
   (F ≣ F)
-≣-refl = Web.Semantic.DL.Category.Properties.≣-refl
+≣-refl = Web.Semantic.DL.Category.IsCategory.≣-refl
 
 ≣-sym :  ∀ {S T} {A B : Object S T} {F G : A ⇒ B} →
   (F ≣ G) → (G ≣ F)
-≣-sym = Web.Semantic.DL.Category.Properties.≣-sym
+≣-sym = Web.Semantic.DL.Category.IsCategory.≣-sym
 
 ≣-trans :  ∀ {S T} {A B : Object S T} {F G H : A ⇒ B} → 
   (F ≣ G) → (G ≣ H) → (F ≣ H)
-≣-trans = Web.Semantic.DL.Category.Properties.≣-trans
+≣-trans = Web.Semantic.DL.Category.IsCategory.≣-trans
 
 -- Equations of a category
 
 compose-resp-≣ : ∀ {S T} {A B C : Object S T} (F₁ F₂ : A ⇒ B) (G₁ G₂ : B ⇒ C) →
   (F₁ ≣ F₂) → (G₁ ≣ G₂) → (F₁ ∙ G₁ ≣ F₂ ∙ G₂)
-compose-resp-≣ = Web.Semantic.DL.Category.Properties.compose-resp-≣
+compose-resp-≣ = Web.Semantic.DL.Category.IsCategory.compose-resp-≣
 
 compose-unit₁ : ∀ {S T} {A B C : Object S T} (F : A ⇒ B) →
   (identity A ∙ F ≣ F)
-compose-unit₁ = Web.Semantic.DL.Category.Properties.compose-unit₁
+compose-unit₁ = Web.Semantic.DL.Category.IsCategory.compose-unit₁
 
 compose-unit₂ : ∀ {S T} {A B C : Object S T} (F : A ⇒ B) →
   (F ∙ identity B ≣ F)
-compose-unit₂ = Web.Semantic.DL.Category.Properties.compose-unit₂
+compose-unit₂ = Web.Semantic.DL.Category.IsCategory.compose-unit₂
 
 compose-assoc : ∀ {S T} {A B C D : Object S T} 
   (F : A ⇒ B) (G : B ⇒ C) (H : C ⇒ D) →
     ((F ∙ G) ∙ H ≣ F ∙ (G ∙ H))
-compose-assoc = Web.Semantic.DL.Category.Properties.compose-assoc
+compose-assoc = Web.Semantic.DL.Category.IsCategory.compose-assoc
