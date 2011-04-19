@@ -12,6 +12,7 @@ import Web.Semantic.DL.Category
 import Web.Semantic.DL.Category.Composition
 import Web.Semantic.DL.Category.Identity
 import Web.Semantic.DL.Category.IsCategory
+import Web.Semantic.DL.Category.IsSymmMonoidal
 import Web.Semantic.DL.Category.Morphism
 import Web.Semantic.DL.Category.Object
 import Web.Semantic.DL.Category.Tensor
