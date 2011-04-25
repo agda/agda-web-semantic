@@ -3,7 +3,7 @@ open import Web.Semantic.DL.TBox using ( TBox )
 
 import Web.Semantic.DL.Category.Object
 import Web.Semantic.DL.Category.Morphism
-import Web.Semantic.DL.Category.Identity
+import Web.Semantic.DL.Category.Wiring
 import Web.Semantic.DL.Category.Composition
 import Web.Semantic.DL.Category.IsCategory
 
@@ -21,7 +21,7 @@ _⇒_ : ∀ {S T} → (Object S T) → (Object S T) → Set₁
 _⇒_ = Web.Semantic.DL.Category.Morphism._⇒_
 
 identity : ∀ {S T} (A : Object S T) → (A ⇒ A)
-identity = Web.Semantic.DL.Category.Identity.identity
+identity = Web.Semantic.DL.Category.Wiring.identity
 
 _∙_ : ∀ {S T} {A B C : Object S T} → (A ⇒ B) → (B ⇒ C) → (A ⇒ C)
 _∙_ = Web.Semantic.DL.Category.Composition._∙_

@@ -6,7 +6,7 @@ open import Web.Semantic.DL.ABox using ( ABox ; _,_ ; ⟨ABox⟩ )
 open import Web.Semantic.DL.ABox.Interp using ( Interp ; _,_ ; ⌊_⌋ ; ind ; _*_ )
 open import Web.Semantic.DL.ABox.Interp.Morphism using 
   ( _≲_ ; _,_ ; ≲⌊_⌋ ; ≲-resp-ind ; _**_ ; ≡³-impl-≈ ; ≡³-impl-≲ )
-open import Web.Semantic.DL.ABox.Model using ( _⊨a_ ; ⟨Abox⟩-resp-⊨ ; ⊨a-resp-≲ ; *-resp-⟨ABox⟩ )
+open import Web.Semantic.DL.ABox.Model using ( _⊨a_ ; ⟨ABox⟩-resp-⊨ ; ⊨a-resp-≲ ; *-resp-⟨ABox⟩ )
 open import Web.Semantic.DL.Category.Morphism using ( _⇒_ ; _,_ ; BN ; impl ; impl✓ )
 open import Web.Semantic.DL.Category.Object using ( Object ; _,_ ; IN ; fin ; iface )
 open import Web.Semantic.DL.Integrity using 
@@ -88,9 +88,9 @@ par-exp : ∀ {V₁ V₂ X₁ X₂ Y₁ Y₂} → (J₁ : Interp Σ (X₁ ⊕ V�
         (enode * (par J₁ K₂ J≲K) ⊨ T , (B₁ & B₂))
 par-exp J₁ K₂ J≲K T B₁ B₂ (J⊨T , J₁⊨B₁) (K⊨T , K₂⊨B₂) = 
   ( K⊨T
-  , ⟨Abox⟩-resp-⊨ inj₁ (λ y → ≈-refl ⌊ K₂ ⌋) B₁
+  , ⟨ABox⟩-resp-⊨ inj₁ (λ y → ≈-refl ⌊ K₂ ⌋) B₁
       (⊨a-resp-≲ (enode ** par-inj₁ J₁ K₂ J≲K) B₁ J₁⊨B₁)
-  , ⟨Abox⟩-resp-⊨ inj₂ (λ y → ≈-refl ⌊ K₂ ⌋) B₂ K₂⊨B₂)
+  , ⟨ABox⟩-resp-⊨ inj₂ (λ y → ≈-refl ⌊ K₂ ⌋) B₂ K₂⊨B₂)
 
 par-≳ : ∀ {V₁ V₂ X₁ X₂ Y₁ Y₂} → (I : Interp Σ (X₁ ⊎ X₂)) →
   (J₁ : Interp Σ (X₁ ⊕ V₁ ⊕ Y₁)) → (K₂ : Interp Σ (X₂ ⊕ V₂ ⊕ Y₂)) → 
@@ -112,9 +112,9 @@ par-impl : ∀ {V₁ V₂ X₁ X₂ Y₁ Y₂} → (J₁ : Interp Σ (X₁ ⊕ V
       (J₁ ⊨a F₁) → (K₂ ⊨a F₂) →
         (par J₁ K₂ J≲K ⊨a F₁ ⟨&⟩ F₂)
 par-impl J₁ K₂ J≲K F₁ F₂ J₁⊨F₁ K₂⊨F₂ = 
-  ( ⟨Abox⟩-resp-⊨ ⊕-inj₁ (λ x → ≈-refl ⌊ K₂ ⌋) F₁ 
+  ( ⟨ABox⟩-resp-⊨ ⊕-inj₁ (λ x → ≈-refl ⌊ K₂ ⌋) F₁ 
       (⊨a-resp-≲ (par-inj₁ J₁ K₂ J≲K) F₁ J₁⊨F₁)
-  , ⟨Abox⟩-resp-⊨ ⊕-inj₂ (λ x → ≈-refl ⌊ K₂ ⌋) F₂ 
+  , ⟨ABox⟩-resp-⊨ ⊕-inj₂ (λ x → ≈-refl ⌊ K₂ ⌋) F₂ 
       (⊨a-resp-≲ (par-inj₂ J₁ K₂ J≲K) F₂ K₂⊨F₂) )
 
 par-mediated : ∀ {V₁ V₂ X₁ X₂ Y₁ Y₂} → (I : Interp Σ (X₁ ⊎ X₂)) →

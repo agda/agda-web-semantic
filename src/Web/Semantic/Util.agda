@@ -115,6 +115,30 @@ False∈Fin = ([] , λ ())
   lemma (inj₁ x) = lemma₁ (∀x∙x∈xs x)
   lemma (inj₂ y) = lemma₂ xs (∀y∙y∈ys y)
 
+-- symmetric monoidal structure of sum
+
+⊎-swap : ∀ {X Y : Set} → (X ⊎ Y) → (Y ⊎ X)
+⊎-swap (inj₁ x) = inj₂ x
+⊎-swap (inj₂ y) = inj₁ y
+
+⊎-assoc : ∀ {X Y Z : Set} → ((X ⊎ Y) ⊎ Z) → (X ⊎ (Y ⊎ Z))
+⊎-assoc (inj₁ (inj₁ x)) = inj₁ x
+⊎-assoc (inj₁ (inj₂ y)) = inj₂ (inj₁ y)
+⊎-assoc (inj₂ z) = inj₂ (inj₂ z)
+
+⊎-assoc⁻¹ : ∀ {X Y Z : Set} → (X ⊎ (Y ⊎ Z)) → ((X ⊎ Y) ⊎ Z)
+⊎-assoc⁻¹ (inj₁ x) = inj₁ (inj₁ x)
+⊎-assoc⁻¹ (inj₂ (inj₁ y)) = inj₁ (inj₂ y)
+⊎-assoc⁻¹ (inj₂ (inj₂ z)) = inj₂ z
+
+⊎-unit₁ : ∀ {X : Set} → (False ⊎ X) → X
+⊎-unit₁ (inj₁ ())
+⊎-unit₁ (inj₂ x) = x
+
+⊎-unit₂ : ∀ {X : Set} → (X ⊎ False) → X
+⊎-unit₂ (inj₁ x) = x
+⊎-unit₂ (inj₂ ())
+
 -- A set divided, like Gaul, into three parts
 
 infix 6 _⊕_⊕_

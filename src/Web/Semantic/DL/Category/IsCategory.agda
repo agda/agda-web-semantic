@@ -14,8 +14,8 @@ open import Web.Semantic.DL.Category.Morphism using
   ; _≣_ ; _⊑_ ; _,_ )
 open import Web.Semantic.DL.Category.Composition using
   ( _∙_ ; pipe ; pipe-left ; pipe-right ; _⟫_ ; ⊨a-intro-⟫ ; ⊨b-intro-⟫ )
-open import Web.Semantic.DL.Category.Identity using
-  ( identity ; wire-≈ ; wire-≈⁻¹ )
+open import Web.Semantic.DL.Category.Wiring using
+  ( identity ; wires-≈ ; wires-≈⁻¹ )
 open import Web.Semantic.DL.Integrity using ( med-≲ ; init-med )
 open import Web.Semantic.DL.KB using ( _,_ )
 open import Web.Semantic.DL.KB.Model using ( _⊨_ )
@@ -73,12 +73,12 @@ module Web.Semantic.DL.Category.IsCategory {Σ : Signature} {S T : TBox Σ} wher
 
 identity-elim : ∀ (A : Object S T) I → (I ⊨a impl (identity A)) →
   ∀ x → (⌊ I ⌋ ⊨ ind I (inode x) ≈ ind I (enode x))
-identity-elim A I I⊨id x = wire-≈ (proj₂ (fin A) x) I⊨id
+identity-elim A I I⊨id x = wires-≈ id (proj₂ (fin A) x) I⊨id
 
 identity-intro : ∀ (A : Object S T) I → 
   (∀ x → (⌊ I ⌋ ⊨ ind I (inode x) ≈ ind I (enode x))) →
     (I ⊨a impl (identity A))
-identity-intro A I ∀x∙x₁≈x₂ = wire-≈⁻¹ ∀x∙x₁≈x₂ (proj₁ (fin A))
+identity-intro A I ∀x∙x₁≈x₂ = wires-≈⁻¹ id ∀x∙x₁≈x₂ (proj₁ (fin A))
 
 compose-left : ∀ {A B C : Object S T} (F : A ⇒ B) (G : B ⇒ C) I →
   (I ⊨a impl (F ∙ G)) → (left * I ⊨a impl F)

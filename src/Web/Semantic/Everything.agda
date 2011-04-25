@@ -10,13 +10,13 @@ import Web.Semantic.DL.ABox.Model
 import Web.Semantic.DL.ABox.Skolemization
 import Web.Semantic.DL.Category
 import Web.Semantic.DL.Category.Composition
-import Web.Semantic.DL.Category.Identity
 import Web.Semantic.DL.Category.IsCategory
 import Web.Semantic.DL.Category.IsSymmMonoidal
 import Web.Semantic.DL.Category.Morphism
 import Web.Semantic.DL.Category.Object
 import Web.Semantic.DL.Category.Tensor
 import Web.Semantic.DL.Category.Unit
+import Web.Semantic.DL.Category.Wiring
 import Web.Semantic.DL.Concept
 import Web.Semantic.DL.Concept.Model
 import Web.Semantic.DL.Concept.Skolemization

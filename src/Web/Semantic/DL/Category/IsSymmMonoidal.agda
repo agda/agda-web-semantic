@@ -4,7 +4,7 @@ open import Relation.Binary.PropositionalEquality using ( _≡_ ; refl )
 open import Web.Semantic.DL.ABox using ( ABox )
 open import Web.Semantic.DL.ABox.Interp using ( Interp ; _,_ ; ⌊_⌋ ; ind ; _*_ )
 open import Web.Semantic.DL.ABox.Interp.Morphism using ( ≡³-impl-≈ )
-open import Web.Semantic.DL.ABox.Model using ( _⊨a_ ; _⊨b_ ; _,_ ; bnodes ; on-bnode ; *-resp-⟨ABox⟩ ; ⟨Abox⟩-resp-⊨ ; ⊨a-resp-≡³ )
+open import Web.Semantic.DL.ABox.Model using ( _⊨a_ ; _⊨b_ ; _,_ ; bnodes ; on-bnode ; *-resp-⟨ABox⟩ ; ⟨ABox⟩-resp-⊨ ; ⊨a-resp-≡³ )
 open import Web.Semantic.DL.Category.IsCategory using ( compose-resp-⊨a ; compose-left ; compose-right )
 open import Web.Semantic.DL.Category.Object using 
   ( Object ; IN ; iface ; fin )
@@ -38,8 +38,8 @@ morph₂ F₁ F₂ I (I⊨F₁ , I⊨F₂) = *-resp-⟨ABox⟩ ⊕-inj₂ I (imp
   (F₁ : ABox Σ (X₁ ⊕ V₁ ⊕ Y₁)) → (F₂ : ABox Σ (X₂ ⊕ V₂ ⊕ Y₂)) →
     (⊕-inj₁ * I ⊨a F₁) → (⊕-inj₂ * I ⊨a F₂) → (I ⊨a F₁ ⟨&⟩ F₂)
 ⊨a-intro-⟨&⟩ (I , i) F₁ F₂ I₁⊨F₁ I₂⊨F₂ = 
-  ( ⟨Abox⟩-resp-⊨ ⊕-inj₁ (λ x → ≈-refl I) F₁ I₁⊨F₁
-  , ⟨Abox⟩-resp-⊨ ⊕-inj₂ (λ x → ≈-refl I) F₂ I₂⊨F₂ )
+  ( ⟨ABox⟩-resp-⊨ ⊕-inj₁ (λ x → ≈-refl I) F₁ I₁⊨F₁
+  , ⟨ABox⟩-resp-⊨ ⊕-inj₂ (λ x → ≈-refl I) F₂ I₂⊨F₂ )
 
 ⊨b-intro-⟨&⟩ : ∀ {V₁ V₂ W₁ W₂ X₁ X₂ Y₁ Y₂} → (I : Interp Σ ((X₁ ⊎ X₂) ⊕ (W₁ ⊎ W₂) ⊕ (Y₁ ⊎ Y₂))) →
   (F₁ : ABox Σ (X₁ ⊕ V₁ ⊕ Y₁)) → (F₂ : ABox Σ (X₂ ⊕ V₂ ⊕ Y₂)) →
@@ -53,10 +53,10 @@ morph₂ F₁ F₂ I (I⊨F₁ , I⊨F₂) = *-resp-⟨ABox⟩ ⊕-inj₂ I (imp
 
   I⊨F₁F₂ : bnodes I f ⊨a F₁ ⟨&⟩ F₂
   I⊨F₁F₂ = 
-    ( ⟨Abox⟩-resp-⊨ ⊕-inj₁ 
+    ( ⟨ABox⟩-resp-⊨ ⊕-inj₁ 
         (≡³-impl-≈ ⌊ I ⌋ (on-bnode f₁ (ind I ∘ ⊕-inj₁)) (on-bnode f (ind I) ∘ ⊕-inj₁) refl) 
         F₁ I₁⊨F₁
-    , ⟨Abox⟩-resp-⊨ ⊕-inj₂ 
+    , ⟨ABox⟩-resp-⊨ ⊕-inj₂ 
         (≡³-impl-≈ ⌊ I ⌋ (on-bnode f₂ (ind I ∘ ⊕-inj₂)) (on-bnode f (ind I) ∘ ⊕-inj₂) refl) 
         F₂ I₂⊨F₂ )
 
