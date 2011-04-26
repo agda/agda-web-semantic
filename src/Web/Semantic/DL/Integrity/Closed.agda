@@ -4,7 +4,7 @@ open import Relation.Unary using ( _∈_ )
 open import Web.Semantic.DL.ABox using ( ABox ; ⟨ABox⟩ )
 open import Web.Semantic.DL.ABox.Interp using ( Interp ; Surjective ; _,_ ; ⌊_⌋ ; ind ; _*_ ; emp )
 open import Web.Semantic.DL.ABox.Interp.Morphism using ( _≲_ ; _,_ ; ≲⌊_⌋ ; ≲-resp-ind ; _≋_ ; _**_ )
-open import Web.Semantic.DL.ABox.Model using ( _⊨a_ ; ⟨Abox⟩-resp-⊨ ; *-resp-⟨ABox⟩ ; ⊨a-resp-≡ )
+open import Web.Semantic.DL.ABox.Model using ( _⊨a_ ; ⟨ABox⟩-resp-⊨ ; *-resp-⟨ABox⟩ ; ⊨a-resp-≡ )
 open import Web.Semantic.DL.Integrity using ( _⊕_⊨_ ; Initial ; Mediator ; Mediated ; _,_ )
 open import Web.Semantic.DL.KB using ( KB ; _,_ )
 open import Web.Semantic.DL.KB.Model using ( _⊨_ )
@@ -84,7 +84,7 @@ emp-≲ I = (morph (λ ()) (λ {}) (λ ()) (λ {r} → λ {}) , λ ())
         (≲⌊ I≲₂J ⌋ , λ x → ≲-resp-ind I≲₂J (enode x))
 
   I′⊨A′ : I′ ⊨a A′
-  I′⊨A′ = ⟨Abox⟩-resp-⊨ enode (λ x → ≈-refl ⌊ I ⌋) A I⊨A
+  I′⊨A′ = ⟨ABox⟩-resp-⊨ enode (λ x → ≈-refl ⌊ I ⌋) A I⊨A
 
   I′-init : I′ ∈ Initial emp (T , A′)
   I′-init = ( emp-≲ (inode * I′) , (I⊨T , I′⊨A′) , I′-med )
@@ -110,7 +110,7 @@ emp-≲ I = (morph (λ ()) (λ {}) (λ ()) (λ {r} → λ {}) , λ ())
     emp≲J′ = emp-≲ (inode * J′)
     
     J′⊨A : J′ ⊨a ⟨ABox⟩ enode A
-    J′⊨A = ⟨Abox⟩-resp-⊨ enode (λ x → ≈-refl ⌊ J ⌋) A J⊨A
+    J′⊨A = ⟨ABox⟩-resp-⊨ enode (λ x → ≈-refl ⌊ J ⌋) A J⊨A
 
     I≲J-impl-I′≲J′ : (I ≲ J) → (I′ ≲ J′)
     I≲J-impl-I′≲J′ I≲J = (≲⌊ I≲J ⌋ , i≲j) where

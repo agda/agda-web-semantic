@@ -115,6 +115,58 @@ False∈Fin = ([] , λ ())
   lemma (inj₁ x) = lemma₁ (∀x∙x∈xs x)
   lemma (inj₂ y) = lemma₂ xs (∀y∙y∈ys y)
 
+-- symmetric monoidal structure of sum
+
+⊎-swap : ∀ {X Y : Set} → (X ⊎ Y) → (Y ⊎ X)
+⊎-swap (inj₁ x) = inj₂ x
+⊎-swap (inj₂ y) = inj₁ y
+
+⊎-assoc : ∀ {X Y Z : Set} → ((X ⊎ Y) ⊎ Z) → (X ⊎ (Y ⊎ Z))
+⊎-assoc (inj₁ (inj₁ x)) = inj₁ x
+⊎-assoc (inj₁ (inj₂ y)) = inj₂ (inj₁ y)
+⊎-assoc (inj₂ z) = inj₂ (inj₂ z)
+
+⊎-assoc⁻¹ : ∀ {X Y Z : Set} → (X ⊎ (Y ⊎ Z)) → ((X ⊎ Y) ⊎ Z)
+⊎-assoc⁻¹ (inj₁ x) = inj₁ (inj₁ x)
+⊎-assoc⁻¹ (inj₂ (inj₁ y)) = inj₁ (inj₂ y)
+⊎-assoc⁻¹ (inj₂ (inj₂ z)) = inj₂ z
+
+⊎-unit₁ : ∀ {X : Set} → (False ⊎ X) → X
+⊎-unit₁ (inj₁ ())
+⊎-unit₁ (inj₂ x) = x
+
+⊎-unit₂ : ∀ {X : Set} → (X ⊎ False) → X
+⊎-unit₂ (inj₁ x) = x
+⊎-unit₂ (inj₂ ())
+
+⊎-swap-iso : ∀ {X Y : Set} (x : X ⊎ Y) → ⊎-swap (⊎-swap x) ≡ x
+⊎-swap-iso (inj₁ x) = refl
+⊎-swap-iso (inj₂ y) = refl
+
+⊎-assoc-iso : ∀ {X Y Z : Set} (x : X ⊎ (Y ⊎ Z)) →
+  (⊎-assoc (⊎-assoc⁻¹ x) ≡ x)
+⊎-assoc-iso (inj₁ x) = refl
+⊎-assoc-iso (inj₂ (inj₁ y)) = refl
+⊎-assoc-iso (inj₂ (inj₂ z)) = refl
+
+⊎-assoc⁻¹-iso : ∀ {X Y Z : Set} (x : (X ⊎ Y) ⊎ Z) →
+  (⊎-assoc⁻¹ (⊎-assoc x) ≡ x)
+⊎-assoc⁻¹-iso (inj₁ (inj₁ x)) = refl
+⊎-assoc⁻¹-iso (inj₁ (inj₂ y)) = refl
+⊎-assoc⁻¹-iso (inj₂ z) = refl
+
+⊎-unit₁-iso : ∀ {X : Set} (x : False ⊎ X) → (inj₂ (⊎-unit₁ x) ≡ x)
+⊎-unit₁-iso (inj₁ ())
+⊎-unit₁-iso (inj₂ x) = refl
+
+⊎-unit₂-iso : ∀ {X : Set} (x : X ⊎ False) → (inj₁ (⊎-unit₂ x) ≡ x)
+⊎-unit₂-iso (inj₁ x) = refl
+⊎-unit₂-iso (inj₂ ())
+
+inj⁻¹ : ∀ {X : Set} → (X ⊎ X) → X
+inj⁻¹ (inj₁ x) = x
+inj⁻¹ (inj₂ x) = x
+
 -- A set divided, like Gaul, into three parts
 
 infix 6 _⊕_⊕_

@@ -6,7 +6,7 @@ open import Web.Semantic.DL.ABox.Interp using
 open import Web.Semantic.DL.ABox.Interp.Morphism using 
   ( _≲_ ; _,_ ; _**_ ; ≲⌊_⌋ ; ≲-resp-ind ; _≋_ )
 open import Web.Semantic.DL.ABox.Model using 
-  ( _⊨a_ ; ⊨a-resp-≲ ; ⟨Abox⟩-resp-⊨ ; *-resp-⟨ABox⟩ 
+  ( _⊨a_ ; ⊨a-resp-≲ ; ⟨ABox⟩-resp-⊨ ; *-resp-⟨ABox⟩ 
   ; on-bnode ; bnodes ; _⊨b_ ; _,_ )
 open import Web.Semantic.DL.Category.Morphism using 
   ( _⇒_ ; _,_ ; BN ; impl ; impl✓ )
@@ -81,8 +81,8 @@ pipe-exp (J , j) (K , k) (J≲K , j≲k) KB K⊨KB = K⊨KB
   (F : ABox Σ (X ⊕ V ⊕ Y)) → (G : ABox Σ (Y ⊕ W ⊕ Z)) →
     (left * I ⊨a F) → (right * I ⊨a G) → (I ⊨a F ⟫ G)
 ⊨a-intro-⟫ (I , i) F G I⊨F I⊨G = 
-  ( ⟨Abox⟩-resp-⊨ left (λ x → ≈-refl I) F I⊨F
-  , ⟨Abox⟩-resp-⊨ right (λ x → ≈-refl I) G I⊨G )
+  ( ⟨ABox⟩-resp-⊨ left (λ x → ≈-refl I) F I⊨F
+  , ⟨ABox⟩-resp-⊨ right (λ x → ≈-refl I) G I⊨G )
 
 ⊨b-intro-⟫ : ∀ {V₁ W₁ V₂ W₂ X Y Z} → (I : Interp Σ (X ⊕ (V₁ ⊕ Y ⊕ W₁) ⊕ Z)) → 
   (F : ABox Σ (X ⊕ V₂ ⊕ Y)) → (G : ABox Σ (Y ⊕ W₂ ⊕ Z)) →
