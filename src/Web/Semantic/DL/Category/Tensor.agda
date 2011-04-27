@@ -6,9 +6,13 @@ open import Web.Semantic.DL.ABox using ( ABox ; _,_ ; ⟨ABox⟩ )
 open import Web.Semantic.DL.ABox.Interp using ( Interp ; _,_ ; ⌊_⌋ ; ind ; _*_ )
 open import Web.Semantic.DL.ABox.Interp.Morphism using 
   ( _≲_ ; _,_ ; ≲⌊_⌋ ; ≲-resp-ind ; _**_ ; ≡³-impl-≈ ; ≡³-impl-≲ )
-open import Web.Semantic.DL.ABox.Model using ( _⊨a_ ; ⟨ABox⟩-resp-⊨ ; ⊨a-resp-≲ ; *-resp-⟨ABox⟩ )
-open import Web.Semantic.DL.Category.Morphism using ( _⇒_ ; _,_ ; BN ; impl ; impl✓ )
-open import Web.Semantic.DL.Category.Object using ( Object ; _,_ ; IN ; fin ; iface )
+open import Web.Semantic.DL.ABox.Model using 
+  ( _⊨a_ ; _⊨b_ ; bnodes ; on-bnode ; _,_ 
+  ; ⟨ABox⟩-resp-⊨ ; ⊨a-resp-≲ ; *-resp-⟨ABox⟩ )
+open import Web.Semantic.DL.Category.Morphism using
+  ( _⇒_ ; _,_ ; BN ; impl ; impl✓ )
+open import Web.Semantic.DL.Category.Object using
+  ( Object ; _,_ ; IN ; fin ; iface )
 open import Web.Semantic.DL.Integrity using 
   ( _⊕_⊨_ ; Unique ; Mediated ; Mediator ; Initial 
   ; _,_ ; extension ; ext-init ; ext-⊨ ; ext✓ ; init-≲ )
@@ -16,12 +20,13 @@ open import Web.Semantic.DL.KB using ( _,_ )
 open import Web.Semantic.DL.KB.Model using ( _⊨_ )
 open import Web.Semantic.DL.Signature using ( Signature )
 open import Web.Semantic.DL.TBox using ( TBox ; _,_ )
-open import Web.Semantic.DL.TBox.Interp using ( _⊨_≈_ ; ≈-refl ; ≈-sym ; ≈-trans )
+open import Web.Semantic.DL.TBox.Interp using
+  ( Δ ; _⊨_≈_ ; ≈-refl ; ≈-sym ; ≈-trans )
 open import Web.Semantic.DL.TBox.Model using ( _⊨t_ )
 open import Web.Semantic.DL.TBox.Interp.Morphism using 
   ( ≲-image ; ≲-resp-≈ ; ≲-trans ) renaming ( _≲_ to _≲′_ )
 open import Web.Semantic.Util using 
-  ( _∘_ ; ⊎-resp-Fin ; _⊕_⊕_ ; inode ; bnode ; enode ; ⊕-inj₁ ; ⊕-inj₂ ; shuffle )
+  ( _∘_ ; ⊎-resp-Fin ; _⊕_⊕_ ; inode ; bnode ; enode ; up ; down ; vmerge )
 
 module Web.Semantic.DL.Category.Tensor {Σ : Signature} where
 
@@ -37,7 +42,37 @@ A₁ ⊗ A₂ =
 _⟨&⟩_ : ∀ {V₁ V₂ X₁ X₂ Y₁ Y₂} → 
   ABox Σ (X₁ ⊕ V₁ ⊕ Y₁) → ABox Σ (X₂ ⊕ V₂ ⊕ Y₂) → 
     ABox Σ ((X₁ ⊎ X₂) ⊕ (V₁ ⊎ V₂) ⊕ (Y₁ ⊎ Y₂))
-F₁ ⟨&⟩ F₂ = (⟨ABox⟩ ⊕-inj₁ F₁ , ⟨ABox⟩ ⊕-inj₂ F₂)
+F₁ ⟨&⟩ F₂ = (⟨ABox⟩ up F₁ , ⟨ABox⟩ down F₂)
+
+⊨a-intro-⟨&⟩ : ∀ {V₁ V₂ X₁ X₂ Y₁ Y₂} → 
+  (I : Interp Σ ((X₁ ⊎ X₂) ⊕ (V₁ ⊎ V₂) ⊕ (Y₁ ⊎ Y₂))) →
+    (F₁ : ABox Σ (X₁ ⊕ V₁ ⊕ Y₁)) → (F₂ : ABox Σ (X₂ ⊕ V₂ ⊕ Y₂)) →
+      (up * I ⊨a F₁) → (down * I ⊨a F₂) → (I ⊨a F₁ ⟨&⟩ F₂)
+⊨a-intro-⟨&⟩ (I , i) F₁ F₂ I₁⊨F₁ I₂⊨F₂ = 
+  ( ⟨ABox⟩-resp-⊨ up (λ x → ≈-refl I) F₁ I₁⊨F₁
+  , ⟨ABox⟩-resp-⊨ down (λ x → ≈-refl I) F₂ I₂⊨F₂ )
+
+⊨b-intro-⟨&⟩ : ∀ {V₁ V₂ W₁ W₂ X₁ X₂ Y₁ Y₂} → 
+  (I : Interp Σ ((X₁ ⊎ X₂) ⊕ (W₁ ⊎ W₂) ⊕ (Y₁ ⊎ Y₂))) →
+    (F₁ : ABox Σ (X₁ ⊕ V₁ ⊕ Y₁)) → (F₂ : ABox Σ (X₂ ⊕ V₂ ⊕ Y₂)) →
+      (up * I ⊨b F₁) → (down * I ⊨b F₂) → (I ⊨b F₁ ⟨&⟩ F₂)
+⊨b-intro-⟨&⟩ {V₁} {V₂} I F₁ F₂ (f₁ , I₁⊨F₁) (f₂ , I₂⊨F₂) = 
+  (f , I⊨F₁F₂) where
+
+  f : (V₁ ⊎ V₂) → Δ ⌊ I ⌋
+  f (inj₁ v) = f₁ v
+  f (inj₂ v) = f₂ v
+
+  I⊨F₁F₂ : bnodes I f ⊨a F₁ ⟨&⟩ F₂
+  I⊨F₁F₂ = 
+    ( ⟨ABox⟩-resp-⊨ up 
+        (≡³-impl-≈ ⌊ I ⌋ (on-bnode f₁ (ind I ∘ up)) 
+          (on-bnode f (ind I) ∘ up) refl) 
+        F₁ I₁⊨F₁
+    , ⟨ABox⟩-resp-⊨ down 
+        (≡³-impl-≈ ⌊ I ⌋ (on-bnode f₂ (ind I ∘ down)) 
+          (on-bnode f (ind I) ∘ down) refl) 
+        F₂ I₂⊨F₂ )
 
 go₂ : ∀ {V₁ X₁ X₂ Y₁} → (I : Interp Σ (X₁ ⊎ X₂)) →
   (J₁ : Interp Σ (X₁ ⊕ V₁ ⊕ Y₁)) → (⌊ I ⌋ ≲′ ⌊ J₁ ⌋) →
@@ -53,8 +88,8 @@ go₂-≲ : ∀ {V₁ V₂ X₁ X₂ Y₁ Y₂} → (I : Interp Σ (X₁ ⊎ X�
   (J₁ : Interp Σ (X₁ ⊕ V₁ ⊕ Y₁)) → 
     (L : Interp Σ ((X₁ ⊎ X₂) ⊕ (V₁ ⊎ V₂) ⊕ (Y₁ ⊎ Y₂))) →
       (I₁≲J₁ : inj₁ * I ≲ inode * J₁) → (I≲L : I ≲ inode * L) →
-        (Mediated (inj₁ * I) J₁ (⊕-inj₁ * L) I₁≲J₁ (inj₁ ** I≲L)) → 
-          (go₂ I J₁ ≲⌊ I₁≲J₁ ⌋ ≲ inode * (⊕-inj₂ * L))
+        (Mediated (inj₁ * I) J₁ (up * L) I₁≲J₁ (inj₁ ** I≲L)) → 
+          (go₂ I J₁ ≲⌊ I₁≲J₁ ⌋ ≲ inode * (down * L))
 go₂-≲ (I , i) (J , j₁) (L , l) (I≲J , i₁≲j₁) (I≲L , i≲l) 
   ((J≲L , j₁≲l₁) , I≲L≋I≲J≲L , J₁≲L₁-uniq) = 
     (J≲L , λ x → ≈-trans L (≈-sym L (I≲L≋I≲J≲L (i (inj₂ x)))) (i≲l (inj₂ x)))
@@ -63,23 +98,23 @@ par : ∀ {V₁ V₂ X₁ X₂ Y₁ Y₂} → (J₁ : Interp Σ (X₁ ⊕ V₁ �
   (K₂ : Interp Σ (X₂ ⊕ V₂ ⊕ Y₂)) → (⌊ J₁ ⌋ ≲′ ⌊ K₂ ⌋) → 
     Interp Σ ((X₁ ⊎ X₂) ⊕ (V₁ ⊎ V₂) ⊕ (Y₁ ⊎ Y₂))
 par J₁ K₂ J≲K = 
-  (⌊ K₂ ⌋ , shuffle (≲-image J≲K ∘ ind J₁) (ind K₂))
+  (⌊ K₂ ⌋ , vmerge (≲-image J≲K ∘ ind J₁) (ind K₂))
 
 par-inj₁ : ∀ {V₁ V₂ X₁ X₂ Y₁ Y₂} → (J₁ : Interp Σ (X₁ ⊕ V₁ ⊕ Y₁)) →
   (K₂ : Interp Σ (X₂ ⊕ V₂ ⊕ Y₂)) → (J≲K : ⌊ J₁ ⌋ ≲′ ⌊ K₂ ⌋) →
-    (J₁ ≲ ⊕-inj₁ * par J₁ K₂ J≲K)
+    (J₁ ≲ up * par J₁ K₂ J≲K)
 par-inj₁ (J , j₁) (K , k₂) J≲K = 
   ( J≲K 
   , ≡³-impl-≈ K
       (≲-image J≲K ∘ j₁)
-      (shuffle (≲-image J≲K ∘ j₁) k₂ ∘ ⊕-inj₁)
+      (vmerge (≲-image J≲K ∘ j₁) k₂ ∘ up)
       refl )
 
 par-inj₂ : ∀ {V₁ V₂ X₁ X₂ Y₁ Y₂} → (J₁ : Interp Σ (X₁ ⊕ V₁ ⊕ Y₁)) →
   (K₂ : Interp Σ (X₂ ⊕ V₂ ⊕ Y₂)) → (J≲K : ⌊ J₁ ⌋ ≲′ ⌊ K₂ ⌋) →
-    (K₂ ≲ ⊕-inj₂ * par J₁ K₂ J≲K)
+    (K₂ ≲ down * par J₁ K₂ J≲K)
 par-inj₂ (J , j₁) (K , k₂) J≲K = 
-  ≡³-impl-≲ (K , k₂) (shuffle (≲-image J≲K ∘ j₁) k₂ ∘ ⊕-inj₂) refl
+  ≡³-impl-≲ (K , k₂) (vmerge (≲-image J≲K ∘ j₁) k₂ ∘ down) refl
 
 par-exp : ∀ {V₁ V₂ X₁ X₂ Y₁ Y₂} → (J₁ : Interp Σ (X₁ ⊕ V₁ ⊕ Y₁)) →
   (K₂ : Interp Σ (X₂ ⊕ V₂ ⊕ Y₂)) → (J≲K : ⌊ J₁ ⌋ ≲′ ⌊ K₂ ⌋) →
@@ -102,7 +137,7 @@ par-≳ I J₁ K₂ (I≲J , i₁≲j₁) (J≲K , j₂≲k₂) =
 
   lemma : ∀ x → ⌊ K₂ ⌋ ⊨
     ≲-image J≲K (≲-image I≲J (ind I x)) ≈
-      shuffle (≲-image J≲K ∘ ind J₁) (ind K₂) (inode x)
+      vmerge (≲-image J≲K ∘ ind J₁) (ind K₂) (inode x)
   lemma (inj₁ x) = ≲-resp-≈ J≲K (i₁≲j₁ x)
   lemma (inj₂ x) = j₂≲k₂ x
 
@@ -112,9 +147,9 @@ par-impl : ∀ {V₁ V₂ X₁ X₂ Y₁ Y₂} → (J₁ : Interp Σ (X₁ ⊕ V
       (J₁ ⊨a F₁) → (K₂ ⊨a F₂) →
         (par J₁ K₂ J≲K ⊨a F₁ ⟨&⟩ F₂)
 par-impl J₁ K₂ J≲K F₁ F₂ J₁⊨F₁ K₂⊨F₂ = 
-  ( ⟨ABox⟩-resp-⊨ ⊕-inj₁ (λ x → ≈-refl ⌊ K₂ ⌋) F₁ 
+  ( ⟨ABox⟩-resp-⊨ up (λ x → ≈-refl ⌊ K₂ ⌋) F₁ 
       (⊨a-resp-≲ (par-inj₁ J₁ K₂ J≲K) F₁ J₁⊨F₁)
-  , ⟨ABox⟩-resp-⊨ ⊕-inj₂ (λ x → ≈-refl ⌊ K₂ ⌋) F₂ 
+  , ⟨ABox⟩-resp-⊨ down (λ x → ≈-refl ⌊ K₂ ⌋) F₂ 
       (⊨a-resp-≲ (par-inj₂ J₁ K₂ J≲K) F₂ K₂⊨F₂) )
 
 par-mediated : ∀ {V₁ V₂ X₁ X₂ Y₁ Y₂} → (I : Interp Σ (X₁ ⊎ X₂)) →
@@ -122,14 +157,14 @@ par-mediated : ∀ {V₁ V₂ X₁ X₂ Y₁ Y₂} → (I : Interp Σ (X₁ ⊎ 
     (L : Interp Σ ((X₁ ⊎ X₂) ⊕ (V₁ ⊎ V₂) ⊕ (Y₁ ⊎ Y₂))) → 
       (I₁≲J₁ : inj₁ * I ≲ inode * J₁) → (I≲L : I ≲ inode * L) → 
         (J₂≲K₂ : go₂ I J₁ ≲⌊ I₁≲J₁ ⌋ ≲ inode * K₂) → 
-          (m : Mediated (inj₁ * I) J₁ (⊕-inj₁ * L) I₁≲J₁ (inj₁ ** I≲L)) → 
-            (Mediated (go₂ I J₁ ≲⌊ I₁≲J₁ ⌋) K₂ (⊕-inj₂ * L) J₂≲K₂ (go₂-≲ I J₁ L I₁≲J₁ I≲L m)) → 
+          (m : Mediated (inj₁ * I) J₁ (up * L) I₁≲J₁ (inj₁ ** I≲L)) → 
+            (Mediated (go₂ I J₁ ≲⌊ I₁≲J₁ ⌋) K₂ (down * L) J₂≲K₂ (go₂-≲ I J₁ L I₁≲J₁ I≲L m)) → 
               (Mediated I (par J₁ K₂ ≲⌊ J₂≲K₂ ⌋) L (par-≳ I J₁ K₂ I₁≲J₁ J₂≲K₂) I≲L)
 par-mediated (I , i) (J , j₁) (K , k₂) (L , l) (I≲J , i₁≲j₁) (I≲L , i≲l) (J≲K , j₂≲k₂) 
   ((J≲L , j₁≲l₁) , I≲L≋I≲J≲L , J₁≲L₁-uniq) ((K≲L , k₂≲l₂) , J≲L≋J≲K≲L , K₂≲L₂-uniq) = 
     ((K≲L , k≲l) , I≲L≋I≲K≲L , K≲L-uniq) where
 
-  k = shuffle (≲-image J≲K ∘ j₁) k₂
+  k = vmerge (≲-image J≲K ∘ j₁) k₂
 
   I≲K : I ≲′ K
   I≲K = ≲-trans I≲J J≲K
@@ -148,12 +183,12 @@ par-mediated (I , i) (J , j₁) (K , k₂) (L , l) (I≲J , i₁≲j₁) (I≲L 
   I≲L≋I≲K≲L : ∀ x → L ⊨ ≲-image I≲L x ≈ ≲-image K≲L (≲-image I≲K x)
   I≲L≋I≲K≲L x = ≈-trans L (I≲L≋I≲J≲L x) (J≲L≋J≲K≲L (≲-image I≲J x))
 
-  lemma₁ : ∀ (K≲L : (K , k) ≲ (L , l)) x → (L ⊨ ≲-image ≲⌊ K≲L ⌋ (≲-image J≲K (j₁ x)) ≈ l (⊕-inj₁ x))
+  lemma₁ : ∀ (K≲L : (K , k) ≲ (L , l)) x → (L ⊨ ≲-image ≲⌊ K≲L ⌋ (≲-image J≲K (j₁ x)) ≈ l (up x))
   lemma₁ (K≲L' , k≲l) (inode x) = k≲l (inode (inj₁ x))
   lemma₁ (K≲L' , k≲l) (bnode v) = k≲l (bnode (inj₁ v))
   lemma₁ (K≲L' , k≲l) (enode y) = k≲l (enode (inj₁ y))
 
-  lemma₂ : ∀ (K≲L : (K , k) ≲ (L , l)) x → (L ⊨ ≲-image ≲⌊ K≲L ⌋ (k₂ x) ≈ l (⊕-inj₂ x))
+  lemma₂ : ∀ (K≲L : (K , k) ≲ (L , l)) x → (L ⊨ ≲-image ≲⌊ K≲L ⌋ (k₂ x) ≈ l (down x))
   lemma₂ (K≲L , k≲l) (inode x) = k≲l (inode (inj₂ x))
   lemma₂ (K≲L , k≲l) (bnode v) = k≲l (bnode (inj₂ v))
   lemma₂ (K≲L , k≲l) (enode y) = k≲l (enode (inj₂ y))
@@ -176,11 +211,11 @@ par-mediator : ∀ {V₁ V₂ X₁ X₂ Y₁ Y₂} → (I : Interp Σ (X₁ ⊎ 
 par-mediator I J₁ K₂ I₁≲J₁ J₂≲K₂ S F₁ F₂ J₁-med K₂-med L I≲L (L⊨S , L⊨F₁ , L⊨F₂) = 
   par-mediated I J₁ K₂ L I₁≲J₁ I≲L J₂≲K₂ I₁≲J₁≲L₁-med J₂≲K₂≲L₂-med where
 
-  I₁≲J₁≲L₁-med : Mediated (inj₁ * I) J₁ (⊕-inj₁ * L) I₁≲J₁ (inj₁ ** I≲L)
-  I₁≲J₁≲L₁-med = J₁-med (⊕-inj₁ * L) (inj₁ ** I≲L) (L⊨S , *-resp-⟨ABox⟩ ⊕-inj₁ L F₁ L⊨F₁)
+  I₁≲J₁≲L₁-med : Mediated (inj₁ * I) J₁ (up * L) I₁≲J₁ (inj₁ ** I≲L)
+  I₁≲J₁≲L₁-med = J₁-med (up * L) (inj₁ ** I≲L) (L⊨S , *-resp-⟨ABox⟩ up L F₁ L⊨F₁)
 
-  J₂≲K₂≲L₂-med : Mediated (go₂ I J₁ ≲⌊ I₁≲J₁ ⌋) K₂ (⊕-inj₂ * L) J₂≲K₂ (go₂-≲ I J₁ L I₁≲J₁ I≲L I₁≲J₁≲L₁-med)
-  J₂≲K₂≲L₂-med = K₂-med (⊕-inj₂ * L) (go₂-≲ I J₁ L I₁≲J₁ I≲L I₁≲J₁≲L₁-med) (L⊨S , *-resp-⟨ABox⟩ ⊕-inj₂ L F₂ L⊨F₂)
+  J₂≲K₂≲L₂-med : Mediated (go₂ I J₁ ≲⌊ I₁≲J₁ ⌋) K₂ (down * L) J₂≲K₂ (go₂-≲ I J₁ L I₁≲J₁ I≲L I₁≲J₁≲L₁-med)
+  J₂≲K₂≲L₂-med = K₂-med (down * L) (go₂-≲ I J₁ L I₁≲J₁ I≲L I₁≲J₁≲L₁-med) (L⊨S , *-resp-⟨ABox⟩ down L F₂ L⊨F₂)
 
 par-init : ∀ {V₁ V₂ X₁ X₂ Y₁ Y₂} → (I : Interp Σ (X₁ ⊎ X₂)) →
   (J₁ : Interp Σ (X₁ ⊕ V₁ ⊕ Y₁)) → (K₂ : Interp Σ (X₂ ⊕ V₂ ⊕ Y₂)) → 

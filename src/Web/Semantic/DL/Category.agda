@@ -2,10 +2,9 @@ open import Web.Semantic.DL.Signature using ( Signature )
 open import Web.Semantic.DL.TBox using ( TBox )
 
 import Web.Semantic.DL.Category.Composition
-import Web.Semantic.DL.Category.IsCategory
-import Web.Semantic.DL.Category.IsSymmMonoidal
 import Web.Semantic.DL.Category.Morphism
 import Web.Semantic.DL.Category.Object
+import Web.Semantic.DL.Category.Properties
 import Web.Semantic.DL.Category.Tensor
 import Web.Semantic.DL.Category.Unit
 import Web.Semantic.DL.Category.Wiring
@@ -71,76 +70,76 @@ _≣_ = Web.Semantic.DL.Category.Morphism._≣_
 
 ≣-refl : ∀ {S T} {A B : Object S T} (F : A ⇒ B) →
   (F ≣ F)
-≣-refl = Web.Semantic.DL.Category.IsCategory.≣-refl
+≣-refl = Web.Semantic.DL.Category.Properties.≣-refl
 
 ≣-sym :  ∀ {S T} {A B : Object S T} {F G : A ⇒ B} →
   (F ≣ G) → (G ≣ F)
-≣-sym = Web.Semantic.DL.Category.IsCategory.≣-sym
+≣-sym = Web.Semantic.DL.Category.Properties.≣-sym
 
 ≣-trans :  ∀ {S T} {A B : Object S T} {F G H : A ⇒ B} → 
   (F ≣ G) → (G ≣ H) → (F ≣ H)
-≣-trans = Web.Semantic.DL.Category.IsCategory.≣-trans
+≣-trans = Web.Semantic.DL.Category.Properties.≣-trans
 
 -- Equations of a category
 
 compose-resp-≣ : ∀ {S T} {A B C : Object S T} (F₁ F₂ : A ⇒ B) (G₁ G₂ : B ⇒ C) →
   (F₁ ≣ F₂) → (G₁ ≣ G₂) → (F₁ ∙ G₁ ≣ F₂ ∙ G₂)
-compose-resp-≣ = Web.Semantic.DL.Category.IsCategory.compose-resp-≣
+compose-resp-≣ = Web.Semantic.DL.Category.Properties.compose-resp-≣
 
 compose-unit₁ : ∀ {S T} {A B C : Object S T} (F : A ⇒ B) →
   (identity A ∙ F ≣ F)
-compose-unit₁ = Web.Semantic.DL.Category.IsCategory.compose-unit₁
+compose-unit₁ = Web.Semantic.DL.Category.Properties.compose-unit₁
 
 compose-unit₂ : ∀ {S T} {A B C : Object S T} (F : A ⇒ B) →
   (F ∙ identity B ≣ F)
-compose-unit₂ = Web.Semantic.DL.Category.IsCategory.compose-unit₂
+compose-unit₂ = Web.Semantic.DL.Category.Properties.compose-unit₂
 
 compose-assoc : ∀ {S T} {A B C D : Object S T} 
   (F : A ⇒ B) (G : B ⇒ C) (H : C ⇒ D) →
     ((F ∙ G) ∙ H ≣ F ∙ (G ∙ H))
-compose-assoc = Web.Semantic.DL.Category.IsCategory.compose-assoc
+compose-assoc = Web.Semantic.DL.Category.Properties.compose-assoc
 
 -- Equations of a symmetric monoidal category
 
 tensor-resp-≣ : ∀ {S T} {A₁ A₂ B₁ B₂ : Object S T} 
   (F₁ G₁ : A₁ ⇒ B₁) (F₂ G₂ : A₂ ⇒ B₂) → 
     (F₁ ≣ G₁) → (F₂ ≣ G₂) → (F₁ ⟨⊗⟩ F₂ ≣ G₁ ⟨⊗⟩ G₂)
-tensor-resp-≣ = Web.Semantic.DL.Category.IsSymmMonoidal.tensor-resp-≣
+tensor-resp-≣ = Web.Semantic.DL.Category.Properties.tensor-resp-≣
 
-tensor-dist-compose : ∀ {S T} {A₁ A₂ B₁ B₂ C₁ C₂ : Object S T}
+tensor-resp-compose : ∀ {S T} {A₁ A₂ B₁ B₂ C₁ C₂ : Object S T}
   (F₁ : A₁ ⇒ B₁) (F₂ : A₂ ⇒ B₂) (G₁ : B₁ ⇒ C₁) (G₂ : B₂ ⇒ C₂) →
     (((F₁ ∙ G₁) ⟨⊗⟩ (F₂ ∙ G₂)) ≣ ((F₁ ⟨⊗⟩ F₂) ∙ (G₁ ⟨⊗⟩ G₂)))
-tensor-dist-compose = Web.Semantic.DL.Category.IsSymmMonoidal.tensor-dist-compose
+tensor-resp-compose = Web.Semantic.DL.Category.Properties.tensor-resp-compose
 
 tensor-resp-id : ∀ {S T} (A₁ A₂ : Object S T) →
   ((identity A₁ ⟨⊗⟩ identity A₂) ≣ identity (A₁ ⊗ A₂))
-tensor-resp-id = Web.Semantic.DL.Category.IsSymmMonoidal.tensor-resp-id
+tensor-resp-id = Web.Semantic.DL.Category.Properties.tensor-resp-id
 
 symm-iso : ∀ {S T} (A₁ A₂ : Object S T) →
   (symm A₁ A₂ ∙ symm A₂ A₁ ≣ identity (A₁ ⊗ A₂))
-symm-iso = Web.Semantic.DL.Category.IsSymmMonoidal.symm-iso
+symm-iso = Web.Semantic.DL.Category.Properties.symm-iso
 
 assoc-iso : ∀ {S T} (A₁ A₂ A₃ : Object S T) →
   (assoc A₁ A₂ A₃ ∙ assoc⁻¹ A₁ A₂ A₃ ≣ identity ((A₁ ⊗ A₂) ⊗ A₃))
-assoc-iso = Web.Semantic.DL.Category.IsSymmMonoidal.assoc-iso
+assoc-iso = Web.Semantic.DL.Category.Properties.assoc-iso
 
 assoc⁻¹-iso : ∀ {S T} (A₁ A₂ A₃ : Object S T) →
   (assoc⁻¹ A₁ A₂ A₃ ∙ assoc A₁ A₂ A₃ ≣ identity (A₁ ⊗ (A₂ ⊗ A₃)))
-assoc⁻¹-iso = Web.Semantic.DL.Category.IsSymmMonoidal.assoc⁻¹-iso
+assoc⁻¹-iso = Web.Semantic.DL.Category.Properties.assoc⁻¹-iso
 
 unit₁-iso : ∀ {S T} (A : Object S T) →
   (unit₁ A ∙ unit₁⁻¹ A ≣ identity (I ⊗ A))
-unit₁-iso A = Web.Semantic.DL.Category.IsSymmMonoidal.unit₁-iso A
+unit₁-iso A = Web.Semantic.DL.Category.Properties.unit₁-iso A
 
 unit₁⁻¹-iso : ∀ {S T} (A : Object S T) →
   (unit₁⁻¹ A ∙ unit₁ A ≣ identity A)
-unit₁⁻¹-iso A = Web.Semantic.DL.Category.IsSymmMonoidal.unit₁⁻¹-iso A
+unit₁⁻¹-iso A = Web.Semantic.DL.Category.Properties.unit₁⁻¹-iso A
 
 unit₂-iso : ∀ {S T} (A : Object S T) →
   (unit₂ A ∙ unit₂⁻¹ A ≣ identity (A ⊗ I))
-unit₂-iso A = Web.Semantic.DL.Category.IsSymmMonoidal.unit₂-iso A
+unit₂-iso A = Web.Semantic.DL.Category.Properties.unit₂-iso A
 
 unit₂⁻¹-iso : ∀ {S T} (A : Object S T) →
   (unit₂⁻¹ A ∙ unit₂ A ≣ identity A)
-unit₂⁻¹-iso A = Web.Semantic.DL.Category.IsSymmMonoidal.unit₂⁻¹-iso A
+unit₂⁻¹-iso A = Web.Semantic.DL.Category.Properties.unit₂⁻¹-iso A
 

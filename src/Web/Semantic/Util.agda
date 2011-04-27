@@ -198,37 +198,37 @@ right (inode y) = bnode (bnode y)
 right (bnode w) = bnode (enode w)
 right (enode z) = enode z
 
-merge : ∀ {V W X Y Z A : Set} →
+hmerge : ∀ {V W X Y Z A : Set} →
   ((X ⊕ V ⊕ Y) → A) → ((Y ⊕ W ⊕ Z) → A) → 
     (X ⊕ (V ⊕ Y ⊕ W) ⊕ Z) → A
-merge f g (inode x)         = f (inode x)
-merge f g (bnode (inode v)) = f (bnode v)
-merge f g (bnode (bnode y)) = g (inode y)
-merge f g (bnode (enode w)) = g (bnode w)
-merge f g (enode z)         = g (enode z)
+hmerge f g (inode x)         = f (inode x)
+hmerge f g (bnode (inode v)) = f (bnode v)
+hmerge f g (bnode (bnode y)) = g (inode y)
+hmerge f g (bnode (enode w)) = g (bnode w)
+hmerge f g (enode z)         = g (enode z)
 
 →-dist-⊕ : ∀ {V X Y Z : Set} → ((X ⊕ V ⊕ Y) → Z) → 
   ((X → Z) × (V → Z) × (Y → Z))
 →-dist-⊕ i = ((i ∘ inode) , (i ∘ bnode) , (i ∘ enode))
 
-⊕-inj₁ : ∀ {V₁ V₂ X₁ X₂ Y₁ Y₂} → (X₁ ⊕ V₁ ⊕ Y₁) →
+up : ∀ {V₁ V₂ X₁ X₂ Y₁ Y₂} → (X₁ ⊕ V₁ ⊕ Y₁) →
   ((X₁ ⊎ X₂) ⊕ (V₁ ⊎ V₂) ⊕ (Y₁ ⊎ Y₂))
-⊕-inj₁ (inode x) = inode (inj₁ x)
-⊕-inj₁ (bnode v) = bnode (inj₁ v)
-⊕-inj₁ (enode y) = enode (inj₁ y)
+up (inode x) = inode (inj₁ x)
+up (bnode v) = bnode (inj₁ v)
+up (enode y) = enode (inj₁ y)
 
-⊕-inj₂ : ∀ {V₁ V₂ X₁ X₂ Y₁ Y₂} → (X₂ ⊕ V₂ ⊕ Y₂) →
+down : ∀ {V₁ V₂ X₁ X₂ Y₁ Y₂} → (X₂ ⊕ V₂ ⊕ Y₂) →
   ((X₁ ⊎ X₂) ⊕ (V₁ ⊎ V₂) ⊕ (Y₁ ⊎ Y₂))
-⊕-inj₂ (inode x) = inode (inj₂ x)
-⊕-inj₂ (bnode v) = bnode (inj₂ v)
-⊕-inj₂ (enode y) = enode (inj₂ y)
-shuffle : ∀ {V₁ V₂ X₁ X₂ Y₁ Y₂ Z : Set} →
-  ((X₁ ⊕ V₁ ⊕ Y₁) → Z) → ((X₂ ⊕ V₂ ⊕ Y₂) → Z) →
-    ((X₁ ⊎ X₂) ⊕ (V₁ ⊎ V₂) ⊕ (Y₁ ⊎ Y₂)) → Z
+down (inode x) = inode (inj₂ x)
+down (bnode v) = bnode (inj₂ v)
+down (enode y) = enode (inj₂ y)
 
-shuffle j k (inode (inj₁ x)) = j (inode x)
-shuffle j k (inode (inj₂ x)) = k (inode x)
-shuffle j k (bnode (inj₁ v)) = j (bnode v)
-shuffle j k (bnode (inj₂ v)) = k (bnode v)
-shuffle j k (enode (inj₁ y)) = j (enode y)
-shuffle j k (enode (inj₂ y)) = k (enode y)
+vmerge : ∀ {V₁ V₂ X₁ X₂ Y₁ Y₂ A : Set} →
+  ((X₁ ⊕ V₁ ⊕ Y₁) → A) → ((X₂ ⊕ V₂ ⊕ Y₂) → A) →
+    ((X₁ ⊎ X₂) ⊕ (V₁ ⊎ V₂) ⊕ (Y₁ ⊎ Y₂)) → A
+vmerge j k (inode (inj₁ x)) = j (inode x)
+vmerge j k (inode (inj₂ x)) = k (inode x)
+vmerge j k (bnode (inj₁ v)) = j (bnode v)
+vmerge j k (bnode (inj₂ v)) = k (bnode v)
+vmerge j k (enode (inj₁ y)) = j (enode y)
+vmerge j k (enode (inj₂ y)) = k (enode y)

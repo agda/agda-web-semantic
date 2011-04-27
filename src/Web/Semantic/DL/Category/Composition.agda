@@ -28,7 +28,7 @@ open import Web.Semantic.DL.TBox.Interp.Morphism using
   ( ≲-image ; ≲-refl ; ≲-trans ; ≲-resp-≈ ) renaming
   ( _≲_ to _≲′_ )
 open import Web.Semantic.Util using 
-  ( _⊕_⊕_ ; inode ; bnode ; enode ; left ; right ; merge ; _∘_ )
+  ( _⊕_⊕_ ; inode ; bnode ; enode ; left ; right ; hmerge ; _∘_ )
 
 module Web.Semantic.DL.Category.Composition {Σ : Signature} where
 
@@ -41,7 +41,7 @@ F ⟫ G = (⟨ABox⟩ left F , ⟨ABox⟩ right G)
 pipe : ∀ {V W X Y Z} →
   (J : Interp Σ (X ⊕ V ⊕ Y)) → (K : Interp Σ (Y ⊕ W ⊕ Z)) →
     (enode * J ≲ inode * K) → (Interp Σ (X ⊕ (V ⊕ Y ⊕ W) ⊕ Z))
-pipe (J , j) (K , k) (J≲K , j≲k) = (K , merge (≲-image J≲K ∘ j) k)
+pipe (J , j) (K , k) (J≲K , j≲k) = (K , hmerge (≲-image J≲K ∘ j) k)
 
 pipe-≳ : ∀ {V W X Y Z} → (I : Interp Σ X) → 
   (J : Interp Σ (X ⊕ V ⊕ Y)) → (K : Interp Σ (Y ⊕ W ⊕ Z)) →
@@ -56,7 +56,7 @@ pipe-left : ∀ {V W X Y Z} → (J : Interp Σ (X ⊕ V ⊕ Y)) →
 pipe-left (J , j) (K , k) (J≲K , j≲k) = (J≲K , lemma) where
 
   lemma : ∀ x → 
-    K ⊨ ≲-image J≲K (j x) ≈ merge (≲-image J≲K ∘ j) k (left x)
+    K ⊨ ≲-image J≲K (j x) ≈ hmerge (≲-image J≲K ∘ j) k (left x)
   lemma (inode x) = ≈-refl K
   lemma (bnode v) = ≈-refl K 
   lemma (enode y) = j≲k y
@@ -67,7 +67,7 @@ pipe-right : ∀ {V W X Y Z} → (J : Interp Σ (X ⊕ V ⊕ Y)) →
 pipe-right (J , j) (K , k) (J≲K , j≲k) = (≲-refl K , lemma) where
 
   lemma : ∀ x → 
-    K ⊨ k x ≈ merge (≲-image J≲K ∘ j) k (right x)
+    K ⊨ k x ≈ hmerge (≲-image J≲K ∘ j) k (right x)
   lemma (inode y) = ≈-refl K
   lemma (bnode w) = ≈-refl K
   lemma (enode z) = ≈-refl K
@@ -138,7 +138,7 @@ pipe-uniq {V} {W} {X} {Y} {Z} (I , i) (J , j) (K , k) (M , m)
   L = K
 
   l : (X ⊕ (V ⊕ Y ⊕ W) ⊕ Z) → Δ L
-  l = merge (≲-image J≲K ∘ j) k
+  l = hmerge (≲-image J≲K ∘ j) k
 
   I≲L : I ≲′ L
   I≲L = ≲-trans I≲J J≲K
@@ -174,7 +174,7 @@ pipe-mediated {V} {W} {X} {Y} {Z} (I , i) (J , j) (K , k) (M , m)
   L = K
 
   l : (X ⊕ (V ⊕ Y ⊕ W) ⊕ Z) → Δ L
-  l = merge (≲-image J≲K ∘ j) k
+  l = hmerge (≲-image J≲K ∘ j) k
 
   I≲L : I ≲′ L
   I≲L = ≲-trans I≲J J≲K
@@ -252,7 +252,7 @@ pipe-init {S} {V} {W} {X} {Y} {Z} {I , i} {J , j} {K , k} {F} {G}
   L = K
 
   l : (X ⊕ (V ⊕ Y ⊕ W) ⊕ Z) → Δ L
-  l = merge (≲-image J≲K ∘ j) k
+  l = hmerge (≲-image J≲K ∘ j) k
 
   I≲L : I ≲′ L
   I≲L = ≲-trans I≲J J≲K
