@@ -72,6 +72,15 @@ Assertions✓ I (ij ∈₂ r) refl       I⊨A         = I⊨A
   (→-dist-⊕ (ind I) ≡ →-dist-⊕ j) → ∀ A → (I ⊨a A) → (⌊ I ⌋ , j ⊨a A)
 ⊨a-resp-≡³ I j i≡j = ⊨a-resp-≲ (≡³-impl-≲ I j i≡j) 
 
+⟨ABox⟩-Assertions : ∀ {X Y a} (f : X → Y) (A : ABox Σ X) → 
+  (a ∈ Assertions A) → (⟨ABox⟩ f a ∈ Assertions (⟨ABox⟩ f A))
+⟨ABox⟩-Assertions f ε ()
+⟨ABox⟩-Assertions f (A , B) (inj₁ a∈A) = inj₁ (⟨ABox⟩-Assertions f A a∈A)
+⟨ABox⟩-Assertions f (A , B) (inj₂ a∈B) = inj₂ (⟨ABox⟩-Assertions f B a∈B)
+⟨ABox⟩-Assertions f (x ∼ y) refl = refl
+⟨ABox⟩-Assertions f (x ∈₁ c) refl = refl
+⟨ABox⟩-Assertions f ((x , y) ∈₂ r) refl = refl
+
 ⟨ABox⟩-resp-⊨ : ∀ {X Y} {I : Interp Σ X} {j : Y → Δ ⌊ I ⌋} 
   (f : X → Y) → (∀ x → ⌊ I ⌋ ⊨ ind I x ≈ j (f x)) →
     ∀ A → (I ⊨a A) → (⌊ I ⌋ , j ⊨a ⟨ABox⟩ f A)

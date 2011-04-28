@@ -117,6 +117,16 @@ False∈Fin = ([] , λ ())
 
 -- symmetric monoidal structure of sum
 
+_⟨⊎⟩_ : ∀ {W X Y Z : Set} → (W → X) → (Y → Z) → (W ⊎ Y) → (X ⊎ Z)
+_⟨⊎⟩_ f g (inj₁ x) = inj₁ (f x)
+_⟨⊎⟩_ f g (inj₂ y) = inj₂ (g y)
+
+_≡⊎≡_ : ∀ {X Y Z : Set} {f g : (X ⊎ Y) → Z} → 
+  (∀ x → (f (inj₁ x) ≡ g (inj₁ x))) → (∀ x → (f (inj₂ x) ≡ g (inj₂ x))) →
+    ∀ x → (f x ≡ g x)
+(f₁≡g₁ ≡⊎≡ f₂≡g₂) (inj₁ x) = f₁≡g₁ x
+(f₁≡g₁ ≡⊎≡ f₂≡g₂) (inj₂ y) = f₂≡g₂ y
+
 ⊎-swap : ∀ {X Y : Set} → (X ⊎ Y) → (Y ⊎ X)
 ⊎-swap (inj₁ x) = inj₂ x
 ⊎-swap (inj₂ y) = inj₁ y
@@ -138,30 +148,6 @@ False∈Fin = ([] , λ ())
 ⊎-unit₂ : ∀ {X : Set} → (X ⊎ False) → X
 ⊎-unit₂ (inj₁ x) = x
 ⊎-unit₂ (inj₂ ())
-
-⊎-swap-iso : ∀ {X Y : Set} (x : X ⊎ Y) → ⊎-swap (⊎-swap x) ≡ x
-⊎-swap-iso (inj₁ x) = refl
-⊎-swap-iso (inj₂ y) = refl
-
-⊎-assoc-iso : ∀ {X Y Z : Set} (x : X ⊎ (Y ⊎ Z)) →
-  (⊎-assoc (⊎-assoc⁻¹ x) ≡ x)
-⊎-assoc-iso (inj₁ x) = refl
-⊎-assoc-iso (inj₂ (inj₁ y)) = refl
-⊎-assoc-iso (inj₂ (inj₂ z)) = refl
-
-⊎-assoc⁻¹-iso : ∀ {X Y Z : Set} (x : (X ⊎ Y) ⊎ Z) →
-  (⊎-assoc⁻¹ (⊎-assoc x) ≡ x)
-⊎-assoc⁻¹-iso (inj₁ (inj₁ x)) = refl
-⊎-assoc⁻¹-iso (inj₁ (inj₂ y)) = refl
-⊎-assoc⁻¹-iso (inj₂ z) = refl
-
-⊎-unit₁-iso : ∀ {X : Set} (x : False ⊎ X) → (inj₂ (⊎-unit₁ x) ≡ x)
-⊎-unit₁-iso (inj₁ ())
-⊎-unit₁-iso (inj₂ x) = refl
-
-⊎-unit₂-iso : ∀ {X : Set} (x : X ⊎ False) → (inj₁ (⊎-unit₂ x) ≡ x)
-⊎-unit₂-iso (inj₁ x) = refl
-⊎-unit₂-iso (inj₂ ())
 
 inj⁻¹ : ∀ {X : Set} → (X ⊎ X) → X
 inj⁻¹ (inj₁ x) = x

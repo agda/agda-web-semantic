@@ -22,7 +22,6 @@ import Web.Semantic.DL.Category.Properties.Composition.RespectsWiring
 import Web.Semantic.DL.Category.Properties.Composition.RightUnit
 import Web.Semantic.DL.Category.Properties.Equivalence
 import Web.Semantic.DL.Category.Properties.Tensor
-import Web.Semantic.DL.Category.Properties.Tensor.DistCompose
 import Web.Semantic.DL.Category.Properties.Tensor.Functor
 import Web.Semantic.DL.Category.Properties.Tensor.Isomorphisms
 import Web.Semantic.DL.Category.Properties.Tensor.Lemmas
