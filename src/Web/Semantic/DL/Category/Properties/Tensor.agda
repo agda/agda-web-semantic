@@ -13,3 +13,5 @@ open import Web.Semantic.DL.Category.Properties.Tensor.Isomorphisms public using
 open import Web.Semantic.DL.Category.Properties.Tensor.Coherence public using
   ( assoc-unit ; assoc-assoc ; assoc-symm )
 
+open import Web.Semantic.DL.Category.Properties.Tensor.UnitNatural public using
+  ( unit₁-natural )

@@ -156,3 +156,8 @@ assoc-symm : ∀ {S T} (A₁ A₂ A₃ : Object S T) →
   (symm (A₁ ⊗ A₂) A₃ ∙ assoc⁻¹ A₃ A₁ A₂ ≣
     assoc A₁ A₂ A₃ ∙ (identity A₁ ⟨⊗⟩ symm A₂ A₃) ∙ assoc⁻¹ A₁ A₃ A₂ ∙ (symm A₁ A₃ ⟨⊗⟩ identity A₂))
 assoc-symm = Web.Semantic.DL.Category.Properties.assoc-symm
+
+unit₁-natural : ∀ {S T} {A B : Object S T} (F : A ⇒ B) →
+  ((identity I ⟨⊗⟩ F) ∙ unit₁ B ≣ unit₁ A ∙ F)
+unit₁-natural = Web.Semantic.DL.Category.Properties.unit₁-natural
+
