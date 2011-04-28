@@ -129,17 +129,30 @@ assoc⁻¹-iso = Web.Semantic.DL.Category.Properties.assoc⁻¹-iso
 
 unit₁-iso : ∀ {S T} (A : Object S T) →
   (unit₁ A ∙ unit₁⁻¹ A ≣ identity (I ⊗ A))
-unit₁-iso A = Web.Semantic.DL.Category.Properties.unit₁-iso A
+unit₁-iso = Web.Semantic.DL.Category.Properties.unit₁-iso
 
 unit₁⁻¹-iso : ∀ {S T} (A : Object S T) →
   (unit₁⁻¹ A ∙ unit₁ A ≣ identity A)
-unit₁⁻¹-iso A = Web.Semantic.DL.Category.Properties.unit₁⁻¹-iso A
+unit₁⁻¹-iso = Web.Semantic.DL.Category.Properties.unit₁⁻¹-iso
 
 unit₂-iso : ∀ {S T} (A : Object S T) →
   (unit₂ A ∙ unit₂⁻¹ A ≣ identity (A ⊗ I))
-unit₂-iso A = Web.Semantic.DL.Category.Properties.unit₂-iso A
+unit₂-iso = Web.Semantic.DL.Category.Properties.unit₂-iso
 
 unit₂⁻¹-iso : ∀ {S T} (A : Object S T) →
   (unit₂⁻¹ A ∙ unit₂ A ≣ identity A)
-unit₂⁻¹-iso A = Web.Semantic.DL.Category.Properties.unit₂⁻¹-iso A
+unit₂⁻¹-iso = Web.Semantic.DL.Category.Properties.unit₂⁻¹-iso
 
+assoc-unit : ∀ {S T} (A₁ A₂ : Object S T) →
+  (assoc A₁ I A₂ ∙ (identity A₁ ⟨⊗⟩ unit₁ A₂) ≣ unit₂ A₁ ⟨⊗⟩ identity A₂)
+assoc-unit = Web.Semantic.DL.Category.Properties.assoc-unit
+
+assoc-assoc : ∀ {S T} (A₁ A₂ A₃ A₄ : Object S T) →
+  (assoc (A₁ ⊗ A₂) A₃ A₄ ∙ assoc A₁ A₂ (A₃ ⊗ A₄) ≣ 
+    (assoc A₁ A₂ A₃ ⟨⊗⟩ identity A₄) ∙ assoc A₁ (A₂ ⊗ A₃) A₄ ∙ (identity A₁ ⟨⊗⟩ assoc A₂ A₃ A₄))
+assoc-assoc = Web.Semantic.DL.Category.Properties.assoc-assoc
+
+assoc-symm : ∀ {S T} (A₁ A₂ A₃ : Object S T) →
+  (symm (A₁ ⊗ A₂) A₃ ∙ assoc⁻¹ A₃ A₁ A₂ ≣
+    assoc A₁ A₂ A₃ ∙ (identity A₁ ⟨⊗⟩ symm A₂ A₃) ∙ assoc⁻¹ A₁ A₃ A₂ ∙ (symm A₁ A₃ ⟨⊗⟩ identity A₂))
+assoc-symm = Web.Semantic.DL.Category.Properties.assoc-symm

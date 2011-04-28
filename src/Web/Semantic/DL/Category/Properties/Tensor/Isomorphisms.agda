@@ -1,22 +1,18 @@
-open import Data.Sum using ( _⊎_ ; inj₁ ; inj₂ )
-open import Relation.Binary.PropositionalEquality using ( _≡_ ; refl )
+open import Relation.Binary.PropositionalEquality using ( refl )
 open import Web.Semantic.DL.Category.Object using ( Object )
 open import Web.Semantic.DL.Category.Morphism using ( _≣_ )
 open import Web.Semantic.DL.Category.Composition using ( _∙_ )
 open import Web.Semantic.DL.Category.Tensor using ( _⊗_ ; _⟨⊗⟩_ )
 open import Web.Semantic.DL.Category.Unit using ( I )
 open import Web.Semantic.DL.Category.Wiring using
-  ( identity ; symm ; assoc ; assoc⁻¹ ; unit₁ ; unit₁⁻¹ ; unit₂ ; unit₂⁻¹ 
-  ; id✓ ; ⊎-swap✓ ; ⊎-assoc⁻¹✓ ; ⊎-assoc✓
-  ; inj₁✓ ; inj₂✓ ; ⊎-unit₁✓ ; ⊎-unit₂✓ )
+  ( identity ; symm ; assoc ; assoc⁻¹ ; unit₁ ; unit₁⁻¹ ; unit₂ ; unit₂⁻¹ )
 open import Web.Semantic.DL.Category.Properties.Wiring using
   ( rewriting ; rewrite-compose ; rewrite-tensor
   ; rewrite-identity ; rewrite-symm ; rewrite-assoc ; rewrite-assoc⁻¹ 
   ; rewrite-unit₁ ; rewrite-unit₁⁻¹ ; rewrite-unit₂ ; rewrite-unit₂⁻¹ )
 open import Web.Semantic.DL.Signature using ( Signature )
 open import Web.Semantic.DL.TBox using ( TBox )
-open import Web.Semantic.Util using 
-  ( id ; elim ; inj⁻¹ ; ⊎-swap ; ⊎-assoc ; ⊎-assoc⁻¹ ; ⊎-unit₁ ; ⊎-unit₂ ; _≡⊎≡_ )
+open import Web.Semantic.Util using ( _≡⊎≡_ )
 
 module Web.Semantic.DL.Category.Properties.Tensor.Isomorphisms
   {Σ : Signature} {S T : TBox Σ} where
