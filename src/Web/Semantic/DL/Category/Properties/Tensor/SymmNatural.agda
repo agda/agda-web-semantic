@@ -19,7 +19,7 @@ open import Web.Semantic.DL.Category.Wiring using
   ( wires-≈ ; wires-≈⁻¹ ; symm )
 open import Web.Semantic.DL.Signature using ( Signature )
 open import Web.Semantic.DL.TBox using ( TBox )
-open import Web.Semantic.DL.TBox.Interp using ( Interp ; Δ ; _⊨_≈_ ; ≈-refl ; ≈-sym )
+open import Web.Semantic.DL.TBox.Interp using ( Δ ; _⊨_≈_ ; ≈-refl ; ≈-sym )
 open import Web.Semantic.DL.TBox.Interp.Morphism using ( ≲-refl )
 open import Web.Semantic.Util using
   ( _∘_ ; False ; ⊎-swap

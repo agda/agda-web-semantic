@@ -22,12 +22,15 @@ import Web.Semantic.DL.Category.Properties.Composition.RespectsWiring
 import Web.Semantic.DL.Category.Properties.Composition.RightUnit
 import Web.Semantic.DL.Category.Properties.Equivalence
 import Web.Semantic.DL.Category.Properties.Tensor
+import Web.Semantic.DL.Category.Properties.Tensor.AssocNatural
 import Web.Semantic.DL.Category.Properties.Tensor.Coherence
 import Web.Semantic.DL.Category.Properties.Tensor.Functor
 import Web.Semantic.DL.Category.Properties.Tensor.Isomorphisms
 import Web.Semantic.DL.Category.Properties.Tensor.Lemmas
 import Web.Semantic.DL.Category.Properties.Tensor.RespectsEquiv
 import Web.Semantic.DL.Category.Properties.Tensor.RespectsWiring
+import Web.Semantic.DL.Category.Properties.Tensor.SymmNatural
+import Web.Semantic.DL.Category.Properties.Tensor.UnitNatural
 import Web.Semantic.DL.Category.Tensor
 import Web.Semantic.DL.Category.Unit
 import Web.Semantic.DL.Category.Wiring

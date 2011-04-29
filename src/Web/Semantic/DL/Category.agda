@@ -99,7 +99,7 @@ compose-assoc : ∀ {S T} {A B C D : Object S T}
     ((F ∙ G) ∙ H ≣ F ∙ (G ∙ H))
 compose-assoc = Web.Semantic.DL.Category.Properties.compose-assoc
 
--- Equations of a symmetric monoidal category
+-- Tensor is a bifunctor
 
 tensor-resp-≣ : ∀ {S T} {A₁ A₂ B₁ B₂ : Object S T} 
   {F₁ G₁ : A₁ ⇒ B₁} {F₂ G₂ : A₂ ⇒ B₂} → 
@@ -114,6 +114,8 @@ tensor-resp-compose = Web.Semantic.DL.Category.Properties.tensor-resp-compose
 tensor-resp-id : ∀ {S T} (A₁ A₂ : Object S T) →
   ((identity A₁ ⟨⊗⟩ identity A₂) ≣ identity (A₁ ⊗ A₂))
 tensor-resp-id = Web.Semantic.DL.Category.Properties.tensor-resp-id
+
+-- Isomorphisms of a symmetric monoidal category
 
 symm-iso : ∀ {S T} (A₁ A₂ : Object S T) →
   (symm A₁ A₂ ∙ symm A₂ A₁ ≣ identity (A₁ ⊗ A₂))
@@ -143,6 +145,8 @@ unit₂⁻¹-iso : ∀ {S T} (A : Object S T) →
   (unit₂⁻¹ A ∙ unit₂ A ≣ identity A)
 unit₂⁻¹-iso = Web.Semantic.DL.Category.Properties.unit₂⁻¹-iso
 
+-- Coherence conditions of a symmetric monoidal category
+
 assoc-unit : ∀ {S T} (A₁ A₂ : Object S T) →
   (assoc A₁ I A₂ ∙ (identity A₁ ⟨⊗⟩ unit₁ A₂) ≣ unit₂ A₁ ⟨⊗⟩ identity A₂)
 assoc-unit = Web.Semantic.DL.Category.Properties.assoc-unit
@@ -157,7 +161,23 @@ assoc-symm : ∀ {S T} (A₁ A₂ A₃ : Object S T) →
     assoc A₁ A₂ A₃ ∙ (identity A₁ ⟨⊗⟩ symm A₂ A₃) ∙ assoc⁻¹ A₁ A₃ A₂ ∙ (symm A₁ A₃ ⟨⊗⟩ identity A₂))
 assoc-symm = Web.Semantic.DL.Category.Properties.assoc-symm
 
+-- Naturality conditions of a symmetric monoidal category
+
 unit₁-natural : ∀ {S T} {A B : Object S T} (F : A ⇒ B) →
   ((identity I ⟨⊗⟩ F) ∙ unit₁ B ≣ unit₁ A ∙ F)
 unit₁-natural = Web.Semantic.DL.Category.Properties.unit₁-natural
 
+unit₂-natural : ∀ {S T} {A B : Object S T} (F : A ⇒ B) →
+  ((F ⟨⊗⟩ identity I) ∙ unit₂ B ≣ unit₂ A ∙ F)
+unit₂-natural = Web.Semantic.DL.Category.Properties.unit₂-natural
+
+symm-natural : ∀ {S T} {A₁ A₂ B₁ B₂ : Object S T} 
+  (F₁ : A₁ ⇒ B₁) (F₂ : A₂ ⇒ B₂) →
+    ((F₁ ⟨⊗⟩ F₂) ∙ symm B₁ B₂ ≣ symm A₁ A₂ ∙ (F₂ ⟨⊗⟩ F₁))
+symm-natural = Web.Semantic.DL.Category.Properties.symm-natural
+
+assoc-natural : ∀ {S T} {A₁ A₂ A₃ B₁ B₂ B₃ : Object S T} 
+  (F₁ : A₁ ⇒ B₁) (F₂ : A₂ ⇒ B₂) (F₃ : A₃ ⇒ B₃) →
+    (((F₁ ⟨⊗⟩ F₂) ⟨⊗⟩ F₃) ∙ assoc B₁ B₂ B₃ ≣
+      assoc A₁ A₂ A₃ ∙ (F₁ ⟨⊗⟩ (F₂ ⟨⊗⟩ F₃)))
+assoc-natural = Web.Semantic.DL.Category.Properties.assoc-natural

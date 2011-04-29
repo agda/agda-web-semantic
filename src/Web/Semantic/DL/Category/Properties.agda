@@ -11,5 +11,5 @@ open import Web.Semantic.DL.Category.Properties.Tensor public using
   ; symm-iso ; assoc-iso ; assoc⁻¹-iso 
   ; unit₁-iso ; unit₁⁻¹-iso ; unit₂-iso ; unit₂⁻¹-iso
   ; assoc-unit ; assoc-assoc ; assoc-symm
-  ; unit₁-natural )
+  ; unit₁-natural ; unit₂-natural ; symm-natural ; assoc-natural )
 

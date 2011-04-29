@@ -14,7 +14,10 @@ open import Web.Semantic.DL.Category.Properties.Tensor.Coherence public using
   ( assoc-unit ; assoc-assoc ; assoc-symm )
 
 open import Web.Semantic.DL.Category.Properties.Tensor.UnitNatural public using
-  ( unit₁-natural )
+  ( unit₁-natural ; unit₂-natural )
 
 open import Web.Semantic.DL.Category.Properties.Tensor.SymmNatural public using
   ( symm-natural )
+
+open import Web.Semantic.DL.Category.Properties.Tensor.AssocNatural public using
+  ( assoc-natural )
