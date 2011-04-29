@@ -45,3 +45,10 @@ assoc-symm A₁ A₂ A₃ = rewriting
     (rewrite-compose (rewrite-tensor (rewrite-identity A₁) (rewrite-symm A₂ A₃))
       (rewrite-compose (rewrite-assoc⁻¹ A₁ A₃ A₂)
         (rewrite-tensor (rewrite-symm A₁ A₃) (rewrite-identity A₂)))))
+
+symm-unit : ∀ (A : Object S T) →
+  (symm A I ∙ unit₁ A ≣ unit₂ A)
+symm-unit A = rewriting
+  (rewrite-compose (rewrite-symm A I) (rewrite-unit₁ A))
+  (λ x → refl)
+  (rewrite-unit₂ A)

@@ -142,8 +142,10 @@ rewriting {A} {B} {F} {G} {f} {g} {f✓} {g✓} F⇓f f≡g G⇓g =
         (F ≣ wiring A B f f✓)
   lemma (rewrite-wiring A B f f✓) = ≣-refl (wiring A B f f✓)
   lemma (rewrite-compose {A} {B} {C} {F} {G} {f} {g} {f✓} {g✓} F⇓f G⇓g) = 
-    ≣-trans (compose-resp-≣ F (wiring A B f f✓) G (wiring B C g g✓) (lemma F⇓f) (lemma G⇓g))
-      (compose-resp-wiring A B C f f✓ g g✓ (f ∘ g) (∘✓ A B C f g f✓ g✓) (λ x → refl))
+    ≣-trans (compose-resp-≣ (lemma F⇓f) (lemma G⇓g))
+      (compose-resp-wiring A B C f f✓ g g✓ (f ∘ g) 
+        (∘✓ A B C f g f✓ g✓) (λ x → refl))
   lemma (rewrite-tensor {A₁} {A₂} {B₁} {B₂} {F₁} {F₂} {f₁} {f₂} {f₁✓} {f₂✓} F₁⇓f₁ F₂⇓f₂) = 
-    ≣-trans (tensor-resp-≣ F₁ (wiring A₁ B₁ f₁ f₁✓) F₂ (wiring A₂ B₂ f₂ f₂✓) (lemma F₁⇓f₁) (lemma F₂⇓f₂)) 
-      (tensor-resp-wiring A₁ A₂ B₁ B₂ f₁ f₁✓ f₂ f₂✓ (f₁ ⟨⊎⟩ f₂) (⟨⊎⟩✓ A₁ A₂ B₁ B₂ f₁ f₂ f₁✓ f₂✓) (λ x → refl) (λ x → refl))
+    ≣-trans (tensor-resp-≣ (lemma F₁⇓f₁) (lemma F₂⇓f₂)) 
+      (tensor-resp-wiring A₁ A₂ B₁ B₂ f₁ f₁✓ f₂ f₂✓ (f₁ ⟨⊎⟩ f₂) 
+        (⟨⊎⟩✓ A₁ A₂ B₁ B₂ f₁ f₂ f₁✓ f₂✓) (λ x → refl) (λ x → refl))

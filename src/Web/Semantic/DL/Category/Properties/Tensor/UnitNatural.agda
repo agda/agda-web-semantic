@@ -4,20 +4,36 @@ open import Data.Sum using ( _⊎_ ; inj₁ ; inj₂ )
 open import Relation.Binary.PropositionalEquality using ( refl )
 open import Web.Semantic.DL.ABox.Interp using ( ⌊_⌋ ; ind ; _*_ )
 open import Web.Semantic.DL.ABox.Interp.Morphism using ( _,_ )
-open import Web.Semantic.DL.ABox.Model using ( _⊨a_ ; on-bnode ; bnodes ; _,_ ; ⊨a-resp-≲ )
+open import Web.Semantic.DL.ABox.Model using
+  ( _⊨a_ ; on-bnode ; bnodes ; _,_ ; ⊨a-resp-≲ )
 open import Web.Semantic.DL.Category.Composition using ( _∙_ )
-open import Web.Semantic.DL.Category.Properties.Composition.Lemmas using ( compose-left ; compose-right ; compose-resp-⊨a )
-open import Web.Semantic.DL.Category.Properties.Tensor.Lemmas using ( tensor-up ; tensor-down ; tensor-resp-⊨a )
+open import Web.Semantic.DL.Category.Properties.Composition.Assoc using
+  ( compose-assoc )
+open import Web.Semantic.DL.Category.Properties.Composition.Lemmas using
+  ( compose-left ; compose-right ; compose-resp-⊨a )
+open import Web.Semantic.DL.Category.Properties.Composition.RespectsEquiv using
+  ( compose-resp-≣ )
+open import Web.Semantic.DL.Category.Properties.Equivalence using
+  ( ≣-refl ; ≣-sym ; ≣-trans )
+open import Web.Semantic.DL.Category.Properties.Tensor.Coherence using
+  ( symm-unit )
+open import Web.Semantic.DL.Category.Properties.Tensor.Lemmas using
+  ( tensor-up ; tensor-down ; tensor-resp-⊨a )
+open import Web.Semantic.DL.Category.Properties.Tensor.SymmNatural using
+  ( symm-natural )
 open import Web.Semantic.DL.Category.Object using ( Object ; IN ; fin )
-open import Web.Semantic.DL.Category.Morphism using ( _⇒_ ; BN ; impl ; _⊑_ ; _≣_ ; _,_ )
+open import Web.Semantic.DL.Category.Morphism using
+  ( _⇒_ ; BN ; impl ; _⊑_ ; _≣_ ; _,_ )
 open import Web.Semantic.DL.Category.Tensor using ( _⟨⊗⟩_ )
 open import Web.Semantic.DL.Category.Unit using ( I )
-open import Web.Semantic.DL.Category.Wiring using ( wires-≈ ; wires-≈⁻¹ ; identity ; unit₁ )
+open import Web.Semantic.DL.Category.Wiring using
+  ( wires-≈ ; wires-≈⁻¹ ; identity ; unit₁ ; unit₂ ; symm )
 open import Web.Semantic.DL.Signature using ( Signature )
 open import Web.Semantic.DL.TBox using ( TBox )
 open import Web.Semantic.DL.TBox.Interp using ( Δ ; _⊨_≈_ ; ≈-refl ; ≈-sym )
 open import Web.Semantic.DL.TBox.Interp.Morphism using ( ≲-refl )
-open import Web.Semantic.Util using ( _∘_ ; False ; _⊕_⊕_ ; inode ; bnode ; enode ; left ; right ; up ; down )
+open import Web.Semantic.Util using
+  ( _∘_ ; False ; _⊕_⊕_ ; inode ; bnode ; enode ; left ; right ; up ; down )
 
 module Web.Semantic.DL.Category.Properties.Tensor.UnitNatural
   {Σ : Signature} {S T : TBox Σ} where
@@ -70,4 +86,19 @@ unit₁-natural {A} {B} F = (LHS⊑RHS , RHS⊑LHS) where
           (compose-right (unit₁ A) F J J⊨RHS)))
       (wires-≈⁻¹ inj₂ (λ x → ≈-refl ⌊ J ⌋) (proj₁ (fin B)))
 
-    
+unit₂-natural : ∀ {A B : Object S T} (F : A ⇒ B) →
+  ((F ⟨⊗⟩ identity I) ∙ unit₂ B ≣ unit₂ A ∙ F)
+unit₂-natural {A} {B} F = 
+  ≣-trans 
+    (compose-resp-≣ (≣-refl (F ⟨⊗⟩ identity I)) (≣-sym (symm-unit B)))
+  (≣-trans 
+    (≣-sym (compose-assoc (F ⟨⊗⟩ identity I) (symm B I) (unit₁ B)))
+  (≣-trans 
+    (compose-resp-≣ (symm-natural F (identity I)) (≣-refl (unit₁ B))) 
+  (≣-trans 
+    (compose-assoc (symm A I) (identity I ⟨⊗⟩ F) (unit₁ B)) 
+  (≣-trans 
+    (compose-resp-≣ (≣-refl (symm A I)) (unit₁-natural F))
+  (≣-trans 
+    (≣-sym (compose-assoc (symm A I) (unit₁ A) F))
+    (compose-resp-≣ (symm-unit A) (≣-refl F)))))))

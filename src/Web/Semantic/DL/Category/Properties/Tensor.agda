@@ -15,3 +15,6 @@ open import Web.Semantic.DL.Category.Properties.Tensor.Coherence public using
 
 open import Web.Semantic.DL.Category.Properties.Tensor.UnitNatural public using
   ( unit₁-natural )
+
+open import Web.Semantic.DL.Category.Properties.Tensor.SymmNatural public using
+  ( symm-natural )

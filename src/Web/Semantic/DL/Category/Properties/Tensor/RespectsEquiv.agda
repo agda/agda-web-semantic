@@ -28,8 +28,9 @@ tensor-resp-⊑ {A₁} {A₂} F₁ G₁ F₂ G₂ F₁⊑G₁ F₂⊑G₂
         (tensor-down F₁ F₂ I I⊨F₁F₂)) 
 
 tensor-resp-≣ : ∀ {A₁ A₂ B₁ B₂ : Object S T}
-  (F₁ G₁ : A₁ ⇒ B₁) (F₂ G₂ : A₂ ⇒ B₂) → 
+  {F₁ G₁ : A₁ ⇒ B₁} {F₂ G₂ : A₂ ⇒ B₂} → 
     (F₁ ≣ G₁) → (F₂ ≣ G₂) → (F₁ ⟨⊗⟩ F₂ ≣ G₁ ⟨⊗⟩ G₂)
-tensor-resp-≣ F₁ G₁ F₂ G₂ (F₁⊑G₁ , G₁⊑F₁) (F₂⊑G₂ , G₂⊑F₂) = 
-  ( tensor-resp-⊑ F₁ G₁ F₂ G₂ F₁⊑G₁ F₂⊑G₂
-  , tensor-resp-⊑ G₁ F₁ G₂ F₂ G₁⊑F₁ G₂⊑F₂ )
+tensor-resp-≣ {A₁} {A₂} {B₁} {B₂} {F₁} {G₁} {F₂} {G₂} 
+  (F₁⊑G₁ , G₁⊑F₁) (F₂⊑G₂ , G₂⊑F₂) = 
+    ( tensor-resp-⊑ F₁ G₁ F₂ G₂ F₁⊑G₁ F₂⊑G₂
+    , tensor-resp-⊑ G₁ F₁ G₂ F₂ G₁⊑F₁ G₂⊑F₂ )

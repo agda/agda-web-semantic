@@ -82,7 +82,7 @@ _≣_ = Web.Semantic.DL.Category.Morphism._≣_
 
 -- Equations of a category
 
-compose-resp-≣ : ∀ {S T} {A B C : Object S T} (F₁ F₂ : A ⇒ B) (G₁ G₂ : B ⇒ C) →
+compose-resp-≣ : ∀ {S T} {A B C : Object S T} {F₁ F₂ : A ⇒ B} {G₁ G₂ : B ⇒ C} →
   (F₁ ≣ F₂) → (G₁ ≣ G₂) → (F₁ ∙ G₁ ≣ F₂ ∙ G₂)
 compose-resp-≣ = Web.Semantic.DL.Category.Properties.compose-resp-≣
 
@@ -102,7 +102,7 @@ compose-assoc = Web.Semantic.DL.Category.Properties.compose-assoc
 -- Equations of a symmetric monoidal category
 
 tensor-resp-≣ : ∀ {S T} {A₁ A₂ B₁ B₂ : Object S T} 
-  (F₁ G₁ : A₁ ⇒ B₁) (F₂ G₂ : A₂ ⇒ B₂) → 
+  {F₁ G₁ : A₁ ⇒ B₁} {F₂ G₂ : A₂ ⇒ B₂} → 
     (F₁ ≣ G₁) → (F₂ ≣ G₂) → (F₁ ⟨⊗⟩ F₂ ≣ G₁ ⟨⊗⟩ G₂)
 tensor-resp-≣ = Web.Semantic.DL.Category.Properties.tensor-resp-≣
 
