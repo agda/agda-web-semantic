@@ -2,9 +2,11 @@ open import Data.Bool using ( Bool ; true ; false ; _∧_ )
 open import Data.Product using ( _×_ )
 open import Relation.Binary.PropositionalEquality using ( _≡_ )
 open import Relation.Unary using ( _∈_ )
-open import Web.Semantic.DL.Concept using ( Concept ; ⟨_⟩ ; ¬⟨_⟩ ; ⊤ ; ⊥ ; _⊓_ ; _⊔_ ; ∀[_]_ ; ∃⟨_⟩_ ; ≤1 ; >1 )
+open import Web.Semantic.DL.Concept using
+  ( Concept ; ⟨_⟩ ; ¬⟨_⟩ ; ⊤ ; ⊥ ; _⊓_ ; _⊔_ ; ∀[_]_ ; ∃⟨_⟩_ ; ≤1 ; >1 )
 open import Web.Semantic.DL.Signature using ( Signature )
-open import Web.Semantic.DL.TBox using ( TBox ; ε ; _,_ ;_⊑₁_ ; _⊑₂_ ; Tra )
+open import Web.Semantic.DL.TBox using
+  ( TBox ; ε ; _,_ ;_⊑₁_ ; _⊑₂_ ; Dis ; Ref ; Irr ; Tra )
 open import Web.Semantic.Util using ( Subset ; □ ; □-proj₁ ; □-proj₂ )
 
 module Web.Semantic.DL.TBox.Minimizable {Σ : Signature} where
@@ -29,6 +31,7 @@ data μTBox : Subset (TBox Σ) where
   _,_ : ∀ {T U} → (T ∈ μTBox) → (U ∈ μTBox) → ((T , U) ∈ μTBox)
   _⊑₁_ : ∀ {C D} → (C ∈ LHS) → (D ∈ RHS) → ((C ⊑₁ D) ∈ μTBox)
   _⊑₂_ : ∀ Q R → ((Q ⊑₂ R) ∈ μTBox)
+  Ref : ∀ R → (Ref R ∈ μTBox)
   Tra : ∀ R → (Tra R ∈ μTBox)
 
 lhs? : Concept Σ → Bool
@@ -80,15 +83,21 @@ rhs (∃⟨ R ⟩ C) {}
 rhs (>1 R)     {}
 
 μTBox? : TBox Σ → Bool
-μTBox? ε        = true
-μTBox? (T , U)  = μTBox? T ∧ μTBox? U
-μTBox? (C ⊑₁ D) = lhs? C ∧ rhs? D
-μTBox? (Q ⊑₂ R) = true
-μTBox? (Tra R)  = true
+μTBox? ε         = true
+μTBox? (T , U)   = μTBox? T ∧ μTBox? U
+μTBox? (C ⊑₁ D)  = lhs? C ∧ rhs? D
+μTBox? (Q ⊑₂ R)  = true
+μTBox? (Dis Q R) = false
+μTBox? (Ref R)   = true
+μTBox? (Irr R)   = false
+μTBox? (Tra R)   = true
 
 μtBox : ∀ T {T✓ : □(μTBox? T)} → μTBox T
 μtBox ε               = ε
 μtBox (T , U)  {TU✓}  = (μtBox T {□-proj₁ TU✓} , μtBox U {□-proj₂ {μTBox? T} TU✓})
 μtBox (C ⊑₁ D) {C⊑D✓} = lhs C {□-proj₁ C⊑D✓} ⊑₁ rhs D {□-proj₂ {lhs? C} C⊑D✓}
 μtBox (Q ⊑₂ R)        = Q ⊑₂ R
+μtBox (Ref R)         = Ref R
 μtBox (Tra R)         = Tra R
+μtBox (Dis Q R) {}
+μtBox (Irr R) {}

@@ -8,9 +8,11 @@ open import Web.Semantic.DL.KB using ( KB ; tbox ; abox )
 open import Web.Semantic.DL.KB.Model using ( _⊨_ )
 open import Web.Semantic.DL.Role using ( Role ; ⟨_⟩ ; ⟨_⟩⁻¹ )
 open import Web.Semantic.DL.Signature using ( Signature )
-open import Web.Semantic.DL.TBox using ( TBox ; ε ; _,_ ; _⊑₁_ ; _⊑₂_ ; Tra )
+open import Web.Semantic.DL.TBox using
+  ( TBox ; ε ; _,_ ; _⊑₁_ ; _⊑₂_ ; Dis ; Ref ; Irr ; Tra )
 
-module Web.Semantic.DL.Integrity.Closed.Alternate {Σ : Signature} {X : Set} where
+module Web.Semantic.DL.Integrity.Closed.Alternate 
+  {Σ : Signature} {X : Set} where
 
 -- An alternate definition of closed-world integrity.
 
@@ -48,7 +50,10 @@ data _⊫t_ (K : KB Σ X) : TBox Σ → Set₁ where
   _,_ : ∀ {T U} → (K ⊫t T) → (K ⊫t U) → (K ⊫t T , U)
   rl : ∀ Q R → (∀ xy → (K ⊫ xy ∈₂ Q) → (K ⊫ xy ∈₂ R)) → (K ⊫t Q ⊑₂ R)
   cn : ∀ C D → (∀ x → (K ⊫ x ∈₁ neg C ⊔ D)) → (K ⊫t C ⊑₁ D)
-  tr : ∀ R → (∀ x y z → (K ⊫ (x , y) ∈₂ R) → (K ⊫ (y , z) ∈₂ R) → (K ⊫ (x , z) ∈₂ R)) → (K ⊫t Tra R)
+  dis : ∀ Q R → (∀ xy → (K ⊫ xy ∈₂ Q) → ¬(K ⊫ xy ∈₂ R)) → (K ⊫t Dis Q R)
+  ref : ∀ R → (∀ x → (K ⊫ (x , x) ∈₂ R)) → (K ⊫t Ref R)
+  irr : ∀ R → (∀ x → ¬(K ⊫ (x , x) ∈₂ R)) → (K ⊫t Irr R)
+  tra : ∀ R → (∀ x y z → (K ⊫ (x , y) ∈₂ R) → (K ⊫ (y , z) ∈₂ R) → (K ⊫ (x , z) ∈₂ R)) → (K ⊫t Tra R)
 
 data _⊫k_ (K L : KB Σ X) : Set₁ where
   _,_ : (K ⊫t tbox L) → (K ⊫a abox L) → (K ⊫k L)

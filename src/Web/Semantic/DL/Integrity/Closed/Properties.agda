@@ -19,13 +19,14 @@ open import Web.Semantic.DL.Integrity.Closed using
 open import Web.Semantic.DL.Integrity.Closed.Alternate using 
   ( _⊫_∼_ ; _⊫_∈₁_ ; _⊫_∈₂_ ; _⊫t_ ; _⊫a_ ; _⊫k_
   ; eq ; rel ; rev ; +atom ; -atom ; top ; inj₁ ; inj₂
-  ; all ; ex ; uniq ; ¬uniq ; cn ; rl ; tr ; ε ; _,_ )
+  ; all ; ex ; uniq ; ¬uniq ; cn ; rl ; dis ; ref ; irr ; tra ; ε ; _,_ )
 open import Web.Semantic.DL.KB using ( KB ; tbox ; abox )
 open import Web.Semantic.DL.KB.Model using ( _⊨_ ; Interps ; ⊨-resp-≃ )
 open import Web.Semantic.DL.Role using ( Role ; ⟨_⟩ ; ⟨_⟩⁻¹ )
 open import Web.Semantic.DL.Role.Model using ( _⟦_⟧₂ )
 open import Web.Semantic.DL.Signature using ( Signature )
-open import Web.Semantic.DL.TBox using ( TBox ; ε ; _,_ ; _⊑₁_ ; _⊑₂_ ; Tra )
+open import Web.Semantic.DL.TBox using
+  ( TBox ; ε ; _,_ ; _⊑₁_ ; _⊑₂_ ; Dis ; Ref ; Irr ; Tra )
 open import Web.Semantic.DL.TBox.Interp using ( _⊨_≈_ ; ≈-sym ; ≈-trans )
 open import Web.Semantic.DL.TBox.Interp.Morphism using ( ≲-resp-≈ ; iso )
 open import Web.Semantic.DL.TBox.Model using ( _⊨t_ )
@@ -117,10 +118,6 @@ complete₁ K (>1 R) x (y , z , xy∈⟦R⟧ , xz∈⟦R⟧ , y≉z) =
   J⊨T : ∀ {T} → (K ⊫t T) → (⌊ J ⌋ ⊨t T)
   J⊨T ε = tt
   J⊨T (K⊫T , K⊫U) = (J⊨T K⊫T , J⊨T K⊫U)
-  J⊨T (tr R K⊫TraR) =
-    λ {x} {y} {z} xy∈⟦R⟧ yz∈⟦R⟧ → 
-      sound₂ K R (x , z) (K⊫TraR x y z 
-        (complete₂ K R (x , y) xy∈⟦R⟧) (complete₂ K R (y , z) yz∈⟦R⟧))
   J⊨T (rl Q R K⊫Q⊑R) = 
     λ {xy} xy∈⟦Q⟧ → sound₂ K R xy (K⊫Q⊑R xy (complete₂ K Q xy xy∈⟦Q⟧))
   J⊨T (cn C D K⊫C⊑D) = λ {x} → lemma x (K⊫C⊑D x) where
@@ -131,6 +128,14 @@ complete₁ K (>1 R) x (y , z , xy∈⟦R⟧ , xz∈⟦R⟧ , y≉z) =
       elim (neg-sound ⌊ J ⌋ {x} C (sound₁ K (neg C) x K⊫x∈¬C) x∈⟦C⟧)
     lemma x (inj₂ K⊫x∈D) x∈⟦C⟧ =
       sound₁ K D x K⊫x∈D
+
+  J⊨T (dis Q R K⊫DisQR) = λ {xy} xy∈⟦Q⟧ xy∈⟦R⟧ → 
+    K⊫DisQR xy (complete₂ K Q xy xy∈⟦Q⟧) (complete₂ K R xy xy∈⟦R⟧)
+  J⊨T (ref R K⊫RefR) = λ x → sound₂ K R (x , x) (K⊫RefR x)
+  J⊨T (irr R K⊫IrrR) = λ x xx∈⟦R⟧ → K⊫IrrR x (complete₂ K R (x , x) xx∈⟦R⟧)
+  J⊨T (tra R K⊫TraR) = λ {x} {y} {z} xy∈⟦R⟧ yz∈⟦R⟧ → 
+    sound₂ K R (x , z) (K⊫TraR x y z 
+      (complete₂ K R (x , y) xy∈⟦R⟧) (complete₂ K R (y , z) yz∈⟦R⟧))
 
   J⊨A : ∀ {A} → (K ⊫a A) → (J ⊨a A)
   J⊨A ε = tt
@@ -149,10 +154,6 @@ min⊨-impl-⊫ K L (J⊨T , J⊨A) =
   K⊫T : ∀ T → (⌊ J ⌋ ⊨t T) → (K ⊫t T)
   K⊫T ε J⊨ε = ε
   K⊫T (T , U) (J⊨T , J⊨U) = (K⊫T T J⊨T , K⊫T U J⊨U)
-  K⊫T (Tra R) J⊨TrR = 
-    tr R (λ x y z K⊫xy∈R K⊫yz∈R → 
-      complete₂ K R (x , z) (J⊨TrR 
-        (sound₂ K R (x , y) K⊫xy∈R) (sound₂ K R (y , z) K⊫yz∈R)))
   K⊫T (Q ⊑₂ R) J⊨Q⊑R =
     rl Q R (λ xy K⊫xy∈Q → complete₂ K R xy (J⊨Q⊑R (sound₂ K Q xy K⊫xy∈Q)))
   K⊫T (C ⊑₁ D) J⊨C⊑D = cn C D lemma where
@@ -163,6 +164,18 @@ min⊨-impl-⊫ K L (J⊨T , J⊨A) =
       inj₂ (complete₁ K D x (J⊨C⊑D x∈⟦C⟧))
     lemma x | no  x∉⟦C⟧ = 
       inj₁ (complete₁ K (neg C) x (neg-complete excl-middle ⌊ J ⌋ C x∉⟦C⟧))
+
+  K⊫T (Dis Q R) J⊨DisQR = 
+    dis Q R (λ xy K⊫xy∈Q K⊫xy∈R → 
+      J⊨DisQR (sound₂ K Q xy K⊫xy∈Q) (sound₂ K R xy K⊫xy∈R))
+  K⊫T (Ref R) J⊨RefR =
+    ref R (λ x → complete₂ K R (x , x) (J⊨RefR x))
+  K⊫T (Irr R) J⊨IrrR =
+    irr R (λ x K⊫xx∈R → J⊨IrrR x (sound₂ K R (x , x) K⊫xx∈R))
+  K⊫T (Tra R) J⊨TrR = 
+    tra R (λ x y z K⊫xy∈R K⊫yz∈R → 
+      complete₂ K R (x , z) (J⊨TrR 
+        (sound₂ K R (x , y) K⊫xy∈R) (sound₂ K R (y , z) K⊫yz∈R)))
 
   K⊫A : ∀ A → (J ⊨a A) → (K ⊫a A)
   K⊫A ε J⊨ε = ε
