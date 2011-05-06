@@ -2,12 +2,13 @@ open import Data.Product using ( _×_ ; _,_ ; swap )
 open import Relation.Nullary using ( ¬_ )
 open import Web.Semantic.DL.ABox using ( ABox ; ε ; _,_ ; _∼_ ; _∈₁_ ; _∈₂_ )
 open import Web.Semantic.DL.ABox.Model using ( _⊨a_ )
-open import Web.Semantic.DL.Concept using ( Concept ; ⟨_⟩ ; ¬⟨_⟩ ; ⊤ ; ⊥ ; _⊔_ ; _⊓_ ; ∀[_]_ ; ∃⟨_⟩_ ; ≤1 ; >1 ; neg )
+open import Web.Semantic.DL.Concept using
+  ( Concept ; ⟨_⟩ ; ¬⟨_⟩ ; ⊤ ; ⊥ ; _⊔_ ; _⊓_ ; ∀[_]_ ; ∃⟨_⟩_ ; ≤1 ; >1 ; neg )
 open import Web.Semantic.DL.KB using ( KB ; tbox ; abox )
 open import Web.Semantic.DL.KB.Model using ( _⊨_ )
 open import Web.Semantic.DL.Role using ( Role ; ⟨_⟩ ; ⟨_⟩⁻¹ )
 open import Web.Semantic.DL.Signature using ( Signature )
-open import Web.Semantic.DL.TBox using ( TBox ; ε ; _,_ ; _⊑₁_ ; _⊑₂_ )
+open import Web.Semantic.DL.TBox using ( TBox ; ε ; _,_ ; _⊑₁_ ; _⊑₂_ ; Tra )
 
 module Web.Semantic.DL.Integrity.Closed.Alternate {Σ : Signature} {X : Set} where
 
@@ -47,6 +48,7 @@ data _⊫t_ (K : KB Σ X) : TBox Σ → Set₁ where
   _,_ : ∀ {T U} → (K ⊫t T) → (K ⊫t U) → (K ⊫t T , U)
   rl : ∀ Q R → (∀ xy → (K ⊫ xy ∈₂ Q) → (K ⊫ xy ∈₂ R)) → (K ⊫t Q ⊑₂ R)
   cn : ∀ C D → (∀ x → (K ⊫ x ∈₁ neg C ⊔ D)) → (K ⊫t C ⊑₁ D)
+  tr : ∀ R → (∀ x y z → (K ⊫ (x , y) ∈₂ R) → (K ⊫ (y , z) ∈₂ R) → (K ⊫ (x , z) ∈₂ R)) → (K ⊫t Tra R)
 
 data _⊫k_ (K L : KB Σ X) : Set₁ where
   _,_ : (K ⊫t tbox L) → (K ⊫a abox L) → (K ⊫k L)

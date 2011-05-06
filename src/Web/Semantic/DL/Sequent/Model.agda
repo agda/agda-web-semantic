@@ -23,12 +23,14 @@ open import Web.Semantic.DL.Role.Model using ( _⟦_⟧₂ ; ⟦⟧₂-resp-≈ 
 open import Web.Semantic.DL.Sequent using 
   ( Γ ; γ ; _⊕_⊢_∼_ ; _⊕_⊢_∈₁_ ; _⊕_⊢_∈₂_ 
   ; ∼-assert ; ∼-import ;∼-refl ; ∼-sym ; ∼-trans ; ∼-≤1
-  ; ∈₂-assert ; ∈₂-import ; ∈₂-resp-∼ ; ∈₂-subsum ; ∈₂-inv-I ; ∈₂-inv-E
+  ; ∈₂-assert ; ∈₂-import ; ∈₂-resp-∼ ; ∈₂-subsum
+  ; ∈₂-trans ; ∈₂-inv-I ; ∈₂-inv-E
   ; ∈₁-assert ; ∈₁-import ; ∈₁-resp-∼ ; ∈₁-subsum
   ; ∈₁-⊤-I ; ∈₁-⊓-I ; ∈₁-⊓-E₁ ; ∈₁-⊓-E₂ 
   ; ∈₁-⊔-I₁ ; ∈₁-⊔-I₂ ; ∈₁-∃-I ; ∈₁-∀-E )
 open import Web.Semantic.DL.Signature using ( Signature )
-open import Web.Semantic.DL.TBox using ( TBox ; Axioms ; ε ; _,_ ;_⊑₁_ ; _⊑₂_ )
+open import Web.Semantic.DL.TBox using
+  ( TBox ; Axioms ; ε ; _,_ ;_⊑₁_ ; _⊑₂_ ; Tra )
 open import Web.Semantic.DL.TBox.Interp using 
   ( interp ; Δ ; _⊨_≈_ ; ≈-refl ; ≈-sym ; ≈-trans ; con-≈ ; rol-≈ ) renaming
   ( Interp to Interp′ )
@@ -37,7 +39,7 @@ open import Web.Semantic.DL.TBox.Interp.Morphism using
 open import Web.Semantic.DL.TBox.Minimizable using 
   ( LHS ; RHS ; μTBox
   ; ⟨_⟩ ; ⊤ ; ⊥ ; _⊓_ ; _⊔_ ; ∀[_]_ ; ∃⟨_⟩_ ; ≤1
-  ; ε ; _,_ ;_⊑₁_ ; _⊑₂_ )
+  ; ε ; _,_ ;_⊑₁_ ; _⊑₂_ ; Tra )
 open import Web.Semantic.DL.TBox.Model using ( _⊨t_ ; Axioms✓ )
 open import Web.Semantic.Util using
   ( Subset ; ⊆-refl ; id ; _∘_ ; _⊕_⊕_ ; _[⊕]_[⊕]_ ; inode ; bnode ; enode )
@@ -108,6 +110,9 @@ minimal-⊨ I KB μT =
     sound₁ I KB D (∈₁-subsum (complete₁ I KB C x∈⟦C⟧) (C⊑₁D∈T refl))
   minimal-tbox (Q ⊑₂ R) Q⊑₁R∈T = λ xy∈⟦Q⟧ → 
     sound₂ I KB R (∈₂-subsum (complete₂ I KB Q xy∈⟦Q⟧) (Q⊑₁R∈T refl))
+  minimal-tbox (Tra R) TraR∈T = λ xy∈⟦R⟧ yz∈⟦R⟧ →
+    sound₂ I KB R (∈₂-trans 
+      (complete₂ I KB R xy∈⟦R⟧) (complete₂ I KB R yz∈⟦R⟧) (TraR∈T refl))
 
   minimal-abox : ∀ A → (Assertions A ⊆ Assertions (abox KB)) → 
     minimal I KB ⊨a A
@@ -194,6 +199,9 @@ minimal-≲ I KB J I≲J (J⊨T , J⊨A) =
         ⟦⟧₂-resp-≈ ⌊ J ⌋ R (minimal-≈ w∼x) (minimal-rol xy∈R) (minimal-≈ y∼z)
       minimal-rol (∈₂-subsum xy∈Q Q⊑R∈T) =
         Axioms✓ ⌊ J ⌋ (tbox KB) Q⊑R∈T J⊨T (minimal-rol xy∈Q)
+      minimal-rol (∈₂-trans xy∈R yz∈R TraR∈T) =
+        Axioms✓ ⌊ J ⌋ (tbox KB) TraR∈T J⊨T 
+          (minimal-rol xy∈R) (minimal-rol yz∈R)
       minimal-rol (∈₂-inv-I xy∈r) =
         minimal-rol xy∈r
       minimal-rol (∈₂-inv-E xy∈r⁻) =

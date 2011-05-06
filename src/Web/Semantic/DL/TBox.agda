@@ -14,9 +14,11 @@ data TBox (Σ : Signature) : Set where
   _,_ : (T U : TBox Σ) → TBox Σ
   _⊑₁_ : (C D : Concept Σ) → TBox Σ
   _⊑₂_ : (Q R : Role Σ) → TBox Σ
+  Tra : (R : Role Σ) → TBox Σ
 
 Axioms : ∀ {Σ} → TBox Σ → Subset (TBox Σ)
 Axioms ε        = ∅
 Axioms (T , U)  = (Axioms T) ∪ (Axioms U)
 Axioms (C ⊑₁ D) = ⁅ C ⊑₁ D ⁆
 Axioms (Q ⊑₂ R) = ⁅ Q ⊑₂ R ⁆
+Axioms (Tra R)  = ⁅ Tra R ⁆

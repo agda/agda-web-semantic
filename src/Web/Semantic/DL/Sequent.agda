@@ -1,13 +1,16 @@
 open import Data.Product using ( _×_ ; _,_ )
 open import Relation.Nullary using ( ¬_ )
 open import Relation.Unary using ( _∈_ ; ∅ ; _∪_ )
-open import Web.Semantic.DL.ABox using ( ABox ; Assertions ; ε ; _,_ ; _∼_ ; _∈₁_ ; _∈₂_ )
+open import Web.Semantic.DL.ABox using
+  ( ABox ; Assertions ; ε ; _,_ ; _∼_ ; _∈₁_ ; _∈₂_ )
 open import Web.Semantic.DL.ABox.Interp using ( Interp ; ⌊_⌋ ; ind )
 open import Web.Semantic.DL.Signature using ( Signature )
-open import Web.Semantic.DL.Concept using ( Concept ; ⟨_⟩ ; ⊤ ; ⊥ ; _⊓_ ; _⊔_ ; ∀[_]_ ; ∃⟨_⟩_ ; ≤1 )
+open import Web.Semantic.DL.Concept using
+  ( Concept ; ⟨_⟩ ; ⊤ ; ⊥ ; _⊓_ ; _⊔_ ; ∀[_]_ ; ∃⟨_⟩_ ; ≤1 )
 open import Web.Semantic.DL.KB using ( KB ; tbox ; abox )
 open import Web.Semantic.DL.Role using ( Role ; ⟨_⟩ ; ⟨_⟩⁻¹ )
-open import Web.Semantic.DL.TBox using ( TBox ; Axioms ; ε ; _,_ ;_⊑₁_ ; _⊑₂_ )
+open import Web.Semantic.DL.TBox using
+  ( TBox ; Axioms ; ε ; _,_ ;_⊑₁_ ; _⊑₂_ ; Tra )
 open import Web.Semantic.DL.TBox.Interp using ( Δ ; _⊨_≈_ ; con ; rol )
 open import Web.Semantic.Util using ( _⊕_⊕_ ; inode ; bnode ; enode )
 
@@ -52,5 +55,6 @@ mutual
     ∈₂-import : ∀ {x y r} → ((x , y) ∈ rol ⌊ I ⌋ r) → (I ⊕ K ⊢ (inode x , inode y) ∈₂ ⟨ r ⟩)
     ∈₂-resp-∼ : ∀ {w x y z R} → (I ⊕ K ⊢ w ∼ x) → (I ⊕ K ⊢ (x , y) ∈₂ R) → (I ⊕ K ⊢ y ∼ z) → (I ⊕ K ⊢ (w , z) ∈₂ R)
     ∈₂-subsum : ∀ {xy R S} → (I ⊕ K ⊢ xy ∈₂ R) → ((R ⊑₂ S) ∈ Axioms (tbox K)) → (I ⊕ K ⊢ xy ∈₂ S)
+    ∈₂-trans : ∀ {x y z R} → (I ⊕ K ⊢ (x , y) ∈₂ R) → (I ⊕ K ⊢ (y , z) ∈₂ R) → ((Tra R) ∈ Axioms (tbox K)) → (I ⊕ K ⊢ (x , z) ∈₂ R)
     ∈₂-inv-I : ∀ {x y r} → (I ⊕ K ⊢ (x , y) ∈₂ ⟨ r ⟩) → (I ⊕ K ⊢ (y , x) ∈₂ ⟨ r ⟩⁻¹)
     ∈₂-inv-E : ∀ {x y r} → (I ⊕ K ⊢ (x , y) ∈₂ ⟨ r ⟩⁻¹) → (I ⊕ K ⊢ (y , x) ∈₂ ⟨ r ⟩)

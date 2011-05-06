@@ -3,31 +3,37 @@ open import Data.Sum using ( inj₁ ; inj₂ )
 open import Relation.Nullary using ( ¬_ ; yes ; no )
 open import Relation.Unary using ( _∈_ )
 open import Web.Semantic.DL.ABox using ( ABox ; ε ; _,_ ; _∼_ ; _∈₁_ ; _∈₂_ )
-open import Web.Semantic.DL.ABox.Interp using ( Interp ; ⌊_⌋ ; ind ; ind⁻¹ ; Surjective ; surj✓ )
-open import Web.Semantic.DL.ABox.Interp.Morphism using ( _≲_ ; _≃_ ; _,_ ; ≲⌊_⌋ ; ≲-resp-ind )
-open import Web.Semantic.DL.ABox.Interp.Meet using ( meet ; meet-lb ; meet-glb ; meet-uniq ; meet-surj )
+open import Web.Semantic.DL.ABox.Interp using
+  ( Interp ; ⌊_⌋ ; ind ; ind⁻¹ ; Surjective ; surj✓ )
+open import Web.Semantic.DL.ABox.Interp.Morphism using
+  ( _≲_ ; _≃_ ; _,_ ; ≲⌊_⌋ ; ≲-resp-ind )
+open import Web.Semantic.DL.ABox.Interp.Meet using
+  ( meet ; meet-lb ; meet-glb ; meet-uniq ; meet-surj )
 open import Web.Semantic.DL.ABox.Model using ( _⊨a_ )
 open import Web.Semantic.DL.Concept using 
   ( Concept ; ⟨_⟩ ; ¬⟨_⟩ ; ⊤ ; ⊥ ; _⊔_ ; _⊓_ ; ∀[_]_ ; ∃⟨_⟩_ ; ≤1 ; >1 ; neg )
-open import Web.Semantic.DL.Concept.Model using ( _⟦_⟧₁ ; neg-sound ; neg-complete )
-open import Web.Semantic.DL.Integrity.Closed using ( Mediated₀ ; Initial₀ ; sur_⊨₀_ ; _,_ )
+open import Web.Semantic.DL.Concept.Model using
+  ( _⟦_⟧₁ ; neg-sound ; neg-complete )
+open import Web.Semantic.DL.Integrity.Closed using
+  ( Mediated₀ ; Initial₀ ; sur_⊨₀_ ; _,_ )
 open import Web.Semantic.DL.Integrity.Closed.Alternate using 
   ( _⊫_∼_ ; _⊫_∈₁_ ; _⊫_∈₂_ ; _⊫t_ ; _⊫a_ ; _⊫k_
   ; eq ; rel ; rev ; +atom ; -atom ; top ; inj₁ ; inj₂
-  ; all ; ex ; uniq ; ¬uniq ; cn ; rl ; ε ; _,_ )
+  ; all ; ex ; uniq ; ¬uniq ; cn ; rl ; tr ; ε ; _,_ )
 open import Web.Semantic.DL.KB using ( KB ; tbox ; abox )
 open import Web.Semantic.DL.KB.Model using ( _⊨_ ; Interps ; ⊨-resp-≃ )
 open import Web.Semantic.DL.Role using ( Role ; ⟨_⟩ ; ⟨_⟩⁻¹ )
 open import Web.Semantic.DL.Role.Model using ( _⟦_⟧₂ )
 open import Web.Semantic.DL.Signature using ( Signature )
-open import Web.Semantic.DL.TBox using ( TBox ; ε ; _,_ ; _⊑₁_ ; _⊑₂_ )
+open import Web.Semantic.DL.TBox using ( TBox ; ε ; _,_ ; _⊑₁_ ; _⊑₂_ ; Tra )
 open import Web.Semantic.DL.TBox.Interp using ( _⊨_≈_ ; ≈-sym ; ≈-trans )
 open import Web.Semantic.DL.TBox.Interp.Morphism using ( ≲-resp-≈ ; iso )
 open import Web.Semantic.DL.TBox.Model using ( _⊨t_ )
 open import Web.Semantic.Util using 
   ( ExclMiddle ; ExclMiddle₁ ; smaller-excl-middle ; is! ; is✓ ; tt ; elim )
 
-module Web.Semantic.DL.Integrity.Closed.Properties (excl-middle₁ : ExclMiddle₁) {Σ : Signature} {X : Set} where
+module Web.Semantic.DL.Integrity.Closed.Properties
+  (excl-middle₁ : ExclMiddle₁) {Σ : Signature} {X : Set} where
 
 -- The two definitions of closed-world integrity coincide for surjective interpretations.
 -- Note that this requires excluded middle, as the alternate definition assumes a classical logic,
@@ -111,6 +117,10 @@ complete₁ K (>1 R) x (y , z , xy∈⟦R⟧ , xz∈⟦R⟧ , y≉z) =
   J⊨T : ∀ {T} → (K ⊫t T) → (⌊ J ⌋ ⊨t T)
   J⊨T ε = tt
   J⊨T (K⊫T , K⊫U) = (J⊨T K⊫T , J⊨T K⊫U)
+  J⊨T (tr R K⊫TraR) =
+    λ {x} {y} {z} xy∈⟦R⟧ yz∈⟦R⟧ → 
+      sound₂ K R (x , z) (K⊫TraR x y z 
+        (complete₂ K R (x , y) xy∈⟦R⟧) (complete₂ K R (y , z) yz∈⟦R⟧))
   J⊨T (rl Q R K⊫Q⊑R) = 
     λ {xy} xy∈⟦Q⟧ → sound₂ K R xy (K⊫Q⊑R xy (complete₂ K Q xy xy∈⟦Q⟧))
   J⊨T (cn C D K⊫C⊑D) = λ {x} → lemma x (K⊫C⊑D x) where
@@ -139,6 +149,10 @@ min⊨-impl-⊫ K L (J⊨T , J⊨A) =
   K⊫T : ∀ T → (⌊ J ⌋ ⊨t T) → (K ⊫t T)
   K⊫T ε J⊨ε = ε
   K⊫T (T , U) (J⊨T , J⊨U) = (K⊫T T J⊨T , K⊫T U J⊨U)
+  K⊫T (Tra R) J⊨TrR = 
+    tr R (λ x y z K⊫xy∈R K⊫yz∈R → 
+      complete₂ K R (x , z) (J⊨TrR 
+        (sound₂ K R (x , y) K⊫xy∈R) (sound₂ K R (y , z) K⊫yz∈R)))
   K⊫T (Q ⊑₂ R) J⊨Q⊑R =
     rl Q R (λ xy K⊫xy∈Q → complete₂ K R xy (J⊨Q⊑R (sound₂ K Q xy K⊫xy∈Q)))
   K⊫T (C ⊑₁ D) J⊨C⊑D = cn C D lemma where

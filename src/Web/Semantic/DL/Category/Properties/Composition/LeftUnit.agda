@@ -61,4 +61,4 @@ compose-unit₁ {A} {B} F = ( idF⊑F , F⊑idF ) where
     Iʳ⊨F = ⊨a-resp-≡³ I (on-bnode f (ind I) ∘ right) refl (impl F) I⊨F
 
     I⊨idF : bnodes I f ⊨a impl (identity A ∙ F)
-    I⊨idF = compose-resp-⊨a (identity A) F (bnodes I f) Iˡ⊨id Iʳ⊨F
+    I⊨idF = compose-resp-⊨a (identity A) F (bnodes I f) Iˡ⊨id Iʳ⊨F 
