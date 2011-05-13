@@ -9,7 +9,7 @@ open import Web.Semantic.DL.ABox.Model using
   ( _⊨a_ ; ⊨a-resp-≲ ; ⟨ABox⟩-resp-⊨ ; *-resp-⟨ABox⟩ 
   ; on-bnode ; bnodes ; _⊨b_ ; _,_ )
 open import Web.Semantic.DL.Category.Morphism using 
-  ( _⇒_ ; _,_ ; BN ; impl ; impl✓ )
+  ( _⇒_ ; _⇒_w/_ ; _,_ ; BN ; impl ; impl✓ )
 open import Web.Semantic.DL.Category.Object using
   ( Object ; _,_ ; IN ; iface )
 open import Web.Semantic.DL.Integrity using
@@ -276,18 +276,18 @@ compose-⊨ : ∀ {S T V W X Y Z} A B C
     (∀ I → (I ⊨ (S , T) , A) → (I ⊕ S , F ⊨ T , B)) →
       (∀ J → (J ⊨ (S , T) , B) → (J ⊕ S , G ⊨ T , C)) →
         (∀ I → (I ⊨ (S , T) , A) → (I ⊕ S , F ⟫ G ⊨ T , C))
-compose-⊨ {S} {T} {V} {W} {X} {Y} {Z} A B C F G F✓ G✓ (I , i) I⊨STA = 
+compose-⊨ {S} {T} {V} {W} {X} {Y} {Z} A B C F G F✓ G✓ I I⊨STA = 
   ( pipe J K J≲K
   , pipe-init J-init K-init
   , pipe-exp J K J≲K (T , C) K⊨TC ) where
 
-  I⊕SF⊨TB : I , i ⊕ S , F ⊨ T , B
-  I⊕SF⊨TB = F✓ (I , i) I⊨STA
+  I⊕SF⊨TB : I ⊕ S , F ⊨ T , B
+  I⊕SF⊨TB = F✓ I I⊨STA
   
   J : Interp Σ (X ⊕ V ⊕ Y)
   J = extension I⊕SF⊨TB
 
-  J-init : J ∈ Initial (I , i) (S , F)
+  J-init : J ∈ Initial I (S , F)
   J-init = ext-init I⊕SF⊨TB
 
   J⊕SG⊨TC : enode * J ⊕ S , G ⊨ T , C
@@ -305,8 +305,10 @@ compose-⊨ {S} {T} {V} {W} {X} {Y} {Z} A B C F G F✓ G✓ (I , i) I⊨STA =
   J≲K : enode * J ≲ inode * K
   J≲K = init-≲ K-init
 
+_∙′_ : ∀ {S T} {A B C : Object S T} → (F : A ⇒ B) → (G : B ⇒ C) → 
+  (A ⇒ C w/ (BN F ⊕ IN B ⊕ BN G))
+_∙′_ {S} {T} {X , X∈Fin , A} {Y , Y∈Fin , B} {Z , Z∈Fin , C} (V , F , F✓) (W , G , G✓) = 
+  (F ⟫ G , compose-⊨ A B C F G F✓ G✓)
+
 _∙_ : ∀ {S T} {A B C : Object S T} → (A ⇒ B) → (B ⇒ C) → (A ⇒ C)
-_∙_ {S} {T} {A} {B} {C} F G = 
-  ( BN F ⊕ IN B ⊕ BN G
-  , impl F ⟫ impl G 
-  , compose-⊨ (iface A) (iface B) (iface C) (impl F) (impl G) (impl✓ F) (impl✓ G) )
+F ∙ G = ( _ , F ∙′ G )

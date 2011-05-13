@@ -21,13 +21,16 @@ infixr 4 _,_
 -- there is a J which is the initial extension of I satisfying (S , F),
 -- and moreover J satisfies (T , B).
 
+data _⇒_w/_ (A B : Object S T) (V : Set) : Set₁ where
+  _,_ : (F : ABox Σ (IN A ⊕ V ⊕ IN B)) →
+    (∀ I → (I ⊨ (S , T) , iface A) → (I ⊕ (S , F) ⊨ (T , iface B))) →
+      (A ⇒ B w/ V)
+
 data _⇒_ (A B : Object S T) : Set₁ where
-  _,_ : ∀ V → (∃ λ (F : ABox Σ (IN A ⊕ V ⊕ IN B)) →
-      ∀ I → (I ⊨ (S , T) , iface A) → (I ⊕ (S , F) ⊨ (T , iface B))) →
-    (A ⇒ B)
+  _,_ : ∀ V → (A ⇒ B w/ V) → (A ⇒ B)
 
 BN : ∀ {A B} → (F : A ⇒ B) → Set
-BN (V , F , F✓) = V
+BN (V , F,F✓) = V
 
 impl : ∀ {A B} → (F : A ⇒ B) → ABox Σ (IN A ⊕ BN F ⊕ IN B)
 impl (V , F , F✓) = F

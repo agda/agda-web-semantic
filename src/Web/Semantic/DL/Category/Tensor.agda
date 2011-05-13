@@ -10,7 +10,7 @@ open import Web.Semantic.DL.ABox.Model using
   ( _⊨a_ ; _⊨b_ ; bnodes ; on-bnode ; _,_ 
   ; ⟨ABox⟩-resp-⊨ ; ⊨a-resp-≲ ; *-resp-⟨ABox⟩ )
 open import Web.Semantic.DL.Category.Morphism using
-  ( _⇒_ ; _,_ ; BN ; impl ; impl✓ )
+  ( _⇒_ ; _⇒_w/_ ; _,_ ; BN ; impl ; impl✓ )
 open import Web.Semantic.DL.Category.Object using
   ( Object ; _,_ ; IN ; fin ; iface )
 open import Web.Semantic.DL.Integrity using 
@@ -26,7 +26,7 @@ open import Web.Semantic.DL.TBox.Model using ( _⊨t_ )
 open import Web.Semantic.DL.TBox.Interp.Morphism using 
   ( ≲-image ; ≲-resp-≈ ; ≲-trans ) renaming ( _≲_ to _≲′_ )
 open import Web.Semantic.Util using 
-  ( _∘_ ; ⊎-resp-Fin ; _⊕_⊕_ ; inode ; bnode ; enode ; up ; down ; vmerge )
+  ( _∘_ ; Finite ; ⊎-resp-Fin ; _⊕_⊕_ ; inode ; bnode ; enode ; up ; down ; vmerge )
 
 module Web.Semantic.DL.Category.Tensor {Σ : Signature} where
 
@@ -292,10 +292,13 @@ tensor-⊨ {V₁} {V₂} {X₁} {X₂} {Y₁} {Y₂}
   J₂≲K₂ : J₂ ≲ inode * K₂
   J₂≲K₂ = init-≲ K₂-init
 
+_⟨⊗⟩′_ : ∀ {S T : TBox Σ} {A₁ A₂ B₁ B₂ : Object S T} → 
+  (F₁ : A₁ ⇒ B₁) → (F₂ : A₂ ⇒ B₂) → 
+    ((A₁ ⊗ A₂) ⇒ (B₁ ⊗ B₂) w/ (BN F₁ ⊎ BN F₂))
+_⟨⊗⟩′_ {S} {T} {X₁ , X₁∈Fin , A₁} {X₂ , X₂∈Fin , A₂} {Y₁ , Y₁∈Fin , B₁} {Y₂ , Y₂∈Fin , B₂} 
+  (V₁ , F₁ , F₁✓) (V₂ , F₂ , F₂✓) = 
+    (F₁ ⟨&⟩ F₂ , tensor-⊨ S T A₁ A₂ B₁ B₂ F₁ F₂ F₁✓ F₂✓)
+
 _⟨⊗⟩_ : ∀ {S T : TBox Σ} {A₁ A₂ B₁ B₂ : Object S T} → 
   (A₁ ⇒ B₁) → (A₂ ⇒ B₂) → ((A₁ ⊗ A₂) ⇒ (B₁ ⊗ B₂))
-_⟨⊗⟩_ {S} {T} {A₁} {A₂} {B₁} {B₂} F₁ F₂  = 
-  ( (BN F₁ ⊎ BN F₂)
-  , (impl F₁ ⟨&⟩ impl F₂)
-  , tensor-⊨ S T (iface A₁) (iface A₂) (iface B₁) (iface B₂)
-      (impl F₁) (impl F₂) (impl✓ F₁) (impl✓ F₂) )
+F₁ ⟨⊗⟩ F₂  = ( (BN F₁ ⊎ BN F₂) , F₁ ⟨⊗⟩′ F₂ )

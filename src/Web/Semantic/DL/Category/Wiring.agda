@@ -96,13 +96,22 @@ wires✓ {X} {Y} {ys} f ∀y∙y∈ys S T A B B⊆A I I⊨STA =
   J-init : J ∈ Initial I (S , wires f ys)
   J-init = wired-init f ys ∀y∙y∈ys I S (proj₁ (proj₁ I⊨STA))
 
+wiring-impl : ∀ {S T : TBox Σ} → (A B : Object S T) (f : IN B → IN A) → 
+  ABox Σ (IN A ⊕ False ⊕ IN B)
+wiring-impl A B f =
+  wires f (proj₁ (fin B))
+
+wiring-impl✓ : ∀ {S T : TBox Σ} → (A B : Object S T) (f : IN B → IN A) → 
+  (Assertions (⟨ABox⟩ f (iface B)) ⊆ Assertions (iface A)) → 
+    ∀ I → (I ⊨ (S , T) , iface A) → (I ⊕ (S , wiring-impl A B f) ⊨ (T , iface B))
+wiring-impl✓ {S} {T} (X , X∈Fin , A) (Y , Y∈Fin , B) f B⊆A =
+  wires✓ f (proj₂ Y∈Fin) S T A B B⊆A
+
 wiring : ∀ {S T : TBox Σ} → (A B : Object S T) (f : IN B → IN A) → 
   (Assertions (⟨ABox⟩ f (iface B)) ⊆ Assertions (iface A)) → 
     (A ⇒ B)
-wiring {S} {T} A B f B⊆A = 
-  ( False
-  , wires f (proj₁ (fin B))
-  , wires✓ f (proj₂ (fin B)) S T (iface A) (iface B) B⊆A)
+wiring A B f B⊆A = 
+  ( False , wiring-impl A B f , wiring-impl✓ A B f B⊆A )
 
 id✓ : ∀ {S T : TBox Σ} → (A : Object S T) → 
   (Assertions (⟨ABox⟩ id (iface A)) ⊆ Assertions (iface A))
