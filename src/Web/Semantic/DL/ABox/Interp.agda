@@ -11,7 +11,7 @@ infixr 4 _,_
 infixr 5 _*_ 
 
 data Interp (Σ : Signature) (X : Set) : Set₁ where
-  _,_ : ∀ I → (X → Δ I) → (Interp Σ X)
+  _,_ : ∀ I → (X → Δ {Σ} I) → (Interp Σ X)
 
 ⌊_⌋ : ∀ {Σ X} → Interp Σ X → Interp′ Σ
 ⌊ I , i ⌋ = I

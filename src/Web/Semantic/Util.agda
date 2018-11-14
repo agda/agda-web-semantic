@@ -4,6 +4,7 @@ open import Data.Bool using ( Bool ; true ; false ; _∧_ )
 open import Data.Empty using ()
 open import Data.List using ( List ; [] ; _∷_ ; _++_ ; map )
 open import Data.List.Any using ( here ; there )
+open import Data.List.Membership.Propositional using ()
 open import Data.Sum using ( _⊎_ ; inj₁ ; inj₂ )
 open import Data.Product using ( ∃ ; ∄ ; _×_ ; _,_ )
 open import Data.Unit using ()
@@ -88,7 +89,7 @@ is! {ℓ} {X} {no ¬x} x = ¬x x
 
 -- Finite sets are ones backed by a list
 
-open Data.List.Any.Membership-≡ public using () renaming ( _∈_ to _∈ˡ_ )
+open Data.List.Membership.Propositional  public using () renaming ( _∈_ to _∈ˡ_ )
 
 Finite : Set → Set
 Finite X = ∃ λ xs → ∀ (x : X) → (x ∈ˡ xs)
