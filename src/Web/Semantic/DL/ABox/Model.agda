@@ -111,7 +111,7 @@ Assertions✓ I (ij ∈₂ r) refl       I⊨A         = I⊨A
 -- bnodes I f is the same as I, except that f is used as the interpretation
 -- for bnodes.
 
-on-bnode : ∀ {V W X Y Z} → (W → Z) → ((X ⊕ V ⊕ Y) → Z) → 
+on-bnode : ∀ {V W X Y Z : Set} → (W → Z) → ((X ⊕ V ⊕ Y) → Z) → 
   ((X ⊕ W ⊕ Y) → Z)
 on-bnode f g (inode x) = g (inode x)
 on-bnode f g (bnode w) = f w
